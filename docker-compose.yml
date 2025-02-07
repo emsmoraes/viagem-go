@@ -1,0 +1,14 @@
+# use in local to create db container
+version: '3.8'
+
+services:
+  postgres:
+    container_name: 'viagem-go'
+    image: postgres:latest
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: viagem-go
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: viagem-go
+      PGDATA: /data/postgres
