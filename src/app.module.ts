@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigModule as ConfigModuleNest } from "@nestjs/config"
-import { EnvModule } from './modules/env/env.module';
 import { envSchema } from './modules/env/env';
 import { PrismaModule } from './shared/database/prisma.module';
+import { featureModules } from './modules';
 
 @Module({
     imports: [
@@ -10,9 +10,9 @@ import { PrismaModule } from './shared/database/prisma.module';
             validate: (env) => envSchema.parse(env),
             isGlobal: true,
         }),
-        EnvModule,
         PrismaModule,
         ConfigModule.forRoot({ isGlobal: true }),
+        ...featureModules,
     ],
     controllers: [],
     providers: [],
