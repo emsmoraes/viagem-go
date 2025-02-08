@@ -13,21 +13,21 @@ export class UserRepository {
 
   async create(data: CreateUserDto) {
     const userData = new CreateUserDto();
-  
+
     try {
       Object.assign(userData, data);
       await validateOrReject(userData);
-  
+
       const hashedPassword = userData.password
         ? await bcrypt.hash(userData.password, 10)
         : null;
-  
+
       const validUserData: Prisma.UserCreateInput = {
         email: userData.email,
         name: userData.name,
         password: hashedPassword,
       };
-  
+
       return this.prisma.user.create({ data: validUserData });
     } catch (e) {
       handleErrors(e);
@@ -36,6 +36,20 @@ export class UserRepository {
 
   async findAll() {
     return await this.prisma.user.findMany();
+  }
+
+  async findByEmail(userEmail: string) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        email: userEmail,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    return user;
   }
 
   async UpdateById(userId: string, data: UpdateUserDto) {
