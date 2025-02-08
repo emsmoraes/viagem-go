@@ -6,6 +6,7 @@ import { validateOrReject } from 'class-validator';
 import { handleErrors } from 'src/shared/helpers/validation-error.helper';
 import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class UserRepository {
@@ -18,17 +19,23 @@ export class UserRepository {
       Object.assign(userData, data);
       await validateOrReject(userData);
 
-      const hashedPassword = userData.password
-        ? await bcrypt.hash(userData.password, 10)
-        : null;
-
       const validUserData: Prisma.UserCreateInput = {
         email: userData.email,
-        name: userData.name,
-        password: hashedPassword,
       };
 
-      return this.prisma.user.create({ data: validUserData });
+      const createdUser = await this.prisma.user.create({
+        data: validUserData,
+      });
+
+     await this.prisma.userKey.create({
+        data: {
+          key: randomUUID(),
+          userId: createdUser.id,
+          type: "account_creation"
+        },
+      });
+
+      return createdUser;
     } catch (e) {
       handleErrors(e);
     }
@@ -52,28 +59,47 @@ export class UserRepository {
     return user;
   }
 
-  async UpdateById(userId: string, data: UpdateUserDto) {
-    const user = await this.prisma.user.findFirst({
+  async UpdateById(key: string, data: UpdateUserDto) {
+    const userKey = await this.prisma.userKey.findUnique({
       where: {
-        id: userId,
+        key: key,
+      },
+      include: {
+        user: true,
       },
     });
 
-    if (!user) {
-      throw new NotFoundException('Usuário não encontrado');
+    if (!userKey) {
+      throw new NotFoundException('Key não encontrada');
     }
 
     const userData = new UpdateUserDto();
-    Object.assign(userData, data);
 
     try {
       Object.assign(userData, data);
       await validateOrReject(userData);
 
-      return await this.prisma.user.update({
-        where: { id: userId },
-        data: userData,
+      const hashedPassword = userData.password
+        ? await bcrypt.hash(userData.password, 10)
+        : null;
+
+      const validUserData: Prisma.UserUpdateInput = {
+        name: userData.name,
+        password: hashedPassword,
+      };
+
+      const updatedUser = await this.prisma.user.update({
+        where: { id: userKey.user.id },
+        data: validUserData,
       });
+
+      await this.prisma.userKey.delete({
+        where: {
+          key: key
+        }
+      });
+
+      return updatedUser
     } catch (e) {
       handleErrors(e);
     }

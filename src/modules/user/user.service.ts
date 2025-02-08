@@ -15,7 +15,7 @@ export class UserService {
     return this.userRepository.findAll();
   }
 
-  update(userId: string, data: UpdateUserDto) {
-    return this.userRepository.UpdateById(userId, data);
+  update(key: string, data: UpdateUserDto) {
+    return this.userRepository.UpdateById(key, data);
   }
 }
