@@ -5,6 +5,7 @@ import { PrismaService } from 'src/shared/database/prisma/prisma.service';
 import { validateOrReject } from 'class-validator';
 import { handleErrors } from 'src/shared/helpers/validation-error.helper';
 import { Prisma } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserRepository {
@@ -12,17 +13,21 @@ export class UserRepository {
 
   async create(data: CreateUserDto) {
     const userData = new CreateUserDto();
-
+  
     try {
       Object.assign(userData, data);
       await validateOrReject(userData);
-
+  
+      const hashedPassword = userData.password
+        ? await bcrypt.hash(userData.password, 10)
+        : null;
+  
       const validUserData: Prisma.UserCreateInput = {
         email: userData.email,
         name: userData.name,
-        password: userData.password,
+        password: hashedPassword,
       };
-
+  
       return this.prisma.user.create({ data: validUserData });
     } catch (e) {
       handleErrors(e);
