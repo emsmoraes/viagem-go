@@ -16,6 +16,6 @@ export class UserService {
   }
 
   update(key: string, data: UpdateUserDto) {
-    return this.userRepository.UpdateById(key, data);
+    return this.userRepository.UpdateByKey(key, data);
   }
 }

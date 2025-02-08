@@ -59,7 +59,7 @@ export class UserRepository {
     return user;
   }
 
-  async UpdateById(key: string, data: UpdateUserDto) {
+  async UpdateByKey(key: string, data: UpdateUserDto) {
     const userKey = await this.prisma.userKey.findUnique({
       where: {
         key: key,
