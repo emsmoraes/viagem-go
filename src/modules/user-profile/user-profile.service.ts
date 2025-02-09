@@ -7,10 +7,10 @@ export class UserProfileService {
   constructor(private readonly userProfileRepository: UserProfileRepository) {}
 
   findOne(id: string) {
-    return `This action returns a #${id} userProfile`;
+    return this.userProfileRepository.getUserById(id);
   }
 
   update(id: string, data: UpdateUserProfileDto) {
-    return this.userProfileRepository.UpdateById(id, data);
+    return this.userProfileRepository.UpdateUserById(id, data);
   }
 }
