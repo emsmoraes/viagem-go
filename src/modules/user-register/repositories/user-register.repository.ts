@@ -7,9 +7,10 @@ import { handleErrors } from 'src/shared/helpers/validation-error.helper';
 import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
+import { UpdateUserProfileDto } from 'src/modules/user-profile/dto/update-user-profile.dto';
 
 @Injectable()
-export class UserRepository {
+export class UserRegisterRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateUserDto) {
@@ -27,22 +28,20 @@ export class UserRepository {
         data: validUserData,
       });
 
-     await this.prisma.userKey.create({
+      const key = await this.prisma.userKey.create({
         data: {
           key: randomUUID(),
           userId: createdUser.id,
-          type: "account_creation"
+          type: 'account_creation',
         },
       });
+
+      console.log(key)
 
       return createdUser;
     } catch (e) {
       handleErrors(e);
     }
-  }
-
-  async findAll() {
-    return await this.prisma.user.findMany();
   }
 
   async findByEmail(userEmail: string) {
@@ -57,6 +56,32 @@ export class UserRepository {
     }
 
     return user;
+  }
+
+  async UpdateById(id: string, data: UpdateUserProfileDto) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    const userData = new UpdateUserProfileDto();
+
+    try {
+      Object.assign(userData, data);
+      await validateOrReject(userData);
+
+      await this.prisma.user.update({
+        where: { id: id },
+        data: userData,
+      });
+    } catch (e) {
+      handleErrors(e);
+    }
   }
 
   async UpdateByKey(key: string, data: UpdateUserDto) {
@@ -93,12 +118,11 @@ export class UserRepository {
           where: { id: userKey.user.id },
           data: validUserData,
         });
-      
+
         await prisma.userKey.delete({ where: { key } });
-      
+
         return updatedUser;
       });
-
     } catch (e) {
       handleErrors(e);
     }
