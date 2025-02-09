@@ -88,18 +88,17 @@ export class UserRepository {
         password: hashedPassword,
       };
 
-      const updatedUser = await this.prisma.user.update({
-        where: { id: userKey.user.id },
-        data: validUserData,
+      return await this.prisma.$transaction(async (prisma) => {
+        const updatedUser = await prisma.user.update({
+          where: { id: userKey.user.id },
+          data: validUserData,
+        });
+      
+        await prisma.userKey.delete({ where: { key } });
+      
+        return updatedUser;
       });
 
-      await this.prisma.userKey.delete({
-        where: {
-          key: key
-        }
-      });
-
-      return updatedUser
     } catch (e) {
       handleErrors(e);
     }
