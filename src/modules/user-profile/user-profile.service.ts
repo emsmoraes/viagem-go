@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
-import { UserRegisterRepository } from '../user-register/repositories/user-register.repository';
+import { UserProfileRepository } from './repositories/user-profile.repository';
 
 @Injectable()
 export class UserProfileService {
-  constructor(private readonly userRegisterRepository: UserRegisterRepository) {}
+  constructor(private readonly userProfileRepository: UserProfileRepository) {}
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} userProfile`;
   }
 
   update(id: string, data: UpdateUserProfileDto) {
-    return this.userRegisterRepository.UpdateById(id, data);
+    return this.userProfileRepository.UpdateById(id, data);
   }
 }

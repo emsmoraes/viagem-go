@@ -56,32 +56,6 @@ export class UserRegisterRepository {
     return user;
   }
 
-  async UpdateById(id: string, data: UpdateUserProfileDto) {
-    const user = await this.prisma.user.findFirst({
-      where: {
-        id,
-      },
-    });
-
-    if (!user) {
-      throw new NotFoundException('Usuário não encontrado');
-    }
-
-    const userData = new UpdateUserProfileDto();
-
-    try {
-      Object.assign(userData, data);
-      await validateOrReject(userData);
-
-      await this.prisma.user.update({
-        where: { id: id },
-        data: userData,
-      });
-    } catch (e) {
-      handleErrors(e);
-    }
-  }
-
   async UpdateByKey(key: string, data: UpdateUserDto) {
     const userKey = await this.prisma.userKey.findUnique({
       where: {
