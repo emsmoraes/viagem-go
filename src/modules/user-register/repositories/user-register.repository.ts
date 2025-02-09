@@ -28,15 +28,13 @@ export class UserRegisterRepository {
         data: validUserData,
       });
 
-      const key = await this.prisma.userKey.create({
+      await this.prisma.userKey.create({
         data: {
           key: randomUUID(),
           userId: createdUser.id,
           type: 'account_creation',
         },
       });
-
-      console.log(key)
 
       return createdUser;
     } catch (e) {
