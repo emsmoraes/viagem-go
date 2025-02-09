@@ -27,7 +27,7 @@ model UserKey {
   id        String   @id @default(uuid())
   key       String   @unique
   type      String
-  userId    String   @unique
+  userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 

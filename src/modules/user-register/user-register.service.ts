@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserRegisterRepository } from './repositories/user-register.repository';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
@@ -42,19 +42,14 @@ export class UserService {
   }
 
   async update(key: string, data: UpdateUserDto) {
-    if (!key) {
-      throw new NotFoundException('Key não encontrada');
-    }
-
     const userData = new UpdateUserDto();
 
     try {
       Object.assign(userData, data);
       await validateOrReject(userData);
+      this.userRegisterRepository.UpdateByKey(key, data);
     } catch (e) {
       handleErrors(e);
     }
-
-    return this.userRegisterRepository.UpdateByKey(key, data);
   }
 }

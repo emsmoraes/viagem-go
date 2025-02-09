@@ -32,4 +32,12 @@ export class UserKeyRepository {
 
     return findKey;
   }
+
+  async deleteKeyByKey(key: string) {
+    await this.prisma.userKey.delete({
+      where: {
+        key,
+      },
+    });
+  }
 }
