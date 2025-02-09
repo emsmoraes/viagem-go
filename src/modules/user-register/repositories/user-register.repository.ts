@@ -2,38 +2,22 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';
 import { PrismaService } from 'src/shared/database/prisma/prisma.service';
-import { validateOrReject } from 'class-validator';
 import { handleErrors } from 'src/shared/helpers/validation-error.helper';
 import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import { randomUUID } from 'crypto';
-import { UpdateUserProfileDto } from 'src/modules/user-profile/dto/update-user-profile.dto';
 
 @Injectable()
 export class UserRegisterRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateUserDto) {
-    const userData = new CreateUserDto();
-
     try {
-      Object.assign(userData, data);
-      await validateOrReject(userData);
-
       const validUserData: Prisma.UserCreateInput = {
-        email: userData.email,
+        email: data.email,
       };
 
       const createdUser = await this.prisma.user.create({
         data: validUserData,
-      });
-
-      await this.prisma.userKey.create({
-        data: {
-          key: randomUUID(),
-          userId: createdUser.id,
-          type: 'account_creation',
-        },
       });
 
       return createdUser;
@@ -56,7 +40,7 @@ export class UserRegisterRepository {
     return user;
   }
 
-  async UpdateByKey(key: string, data: UpdateUserDto) {
+  async UpdateByKey(key: string, userData: UpdateUserDto) {
     const userKey = await this.prisma.userKey.findUnique({
       where: {
         key: key,
@@ -66,16 +50,7 @@ export class UserRegisterRepository {
       },
     });
 
-    if (!userKey) {
-      throw new NotFoundException('Key não encontrada');
-    }
-
-    const userData = new UpdateUserDto();
-
     try {
-      Object.assign(userData, data);
-      await validateOrReject(userData);
-
       const hashedPassword = userData.password
         ? await bcrypt.hash(userData.password, 10)
         : null;

@@ -1,9 +1,20 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 import { PrismaService } from 'src/shared/database/prisma/prisma.service';
 
 @Injectable()
 export class UserKeyRepository {
   constructor(private readonly prisma: PrismaService) {}
+
+  async create({ type, userId }: { type: string; userId: string }) {
+    return await this.prisma.userKey.create({
+      data: {
+        key: randomUUID(),
+        userId: userId,
+        type: type,
+      },
+    });
+  }
 
   async findByKey(key: string) {
     const findKey = await this.prisma.userKey.findFirst({
@@ -11,8 +22,8 @@ export class UserKeyRepository {
         key: key,
       },
       include: {
-        user: true
-      }
+        user: true,
+      },
     });
 
     if (!findKey) {
