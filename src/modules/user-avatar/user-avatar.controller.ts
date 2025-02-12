@@ -41,7 +41,7 @@ export class UserAvatarController {
       throw new BadRequestException('Arquivo não enviado ou inválido.');
     }
 
-    const userId = req.user.sub;
+    const userId = req.user.userId;
 
     const webpFile = await convertToWebP(file);
 
@@ -51,7 +51,7 @@ export class UserAvatarController {
   @UseGuards(AuthGuard)
   @Delete()
   remove(@Request() req) {
-    const userId = req.user.sub;
+    const userId = req.user.userId;
 
     return this.userAvatarService.remove(userId);
   }

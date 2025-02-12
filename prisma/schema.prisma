@@ -20,6 +20,7 @@ model User {
   updatedAt                       DateTime @updatedAt
 
   userKeys UserKey[]
+  Proposal Proposal[]
 
   @@map("users")
 }
@@ -33,4 +34,11 @@ model UserKey {
   createdAt DateTime @default(now())
 
   @@map("user_keys")
+}
+
+model Proposal {
+  id     String @id @default(uuid())
+  title  String
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

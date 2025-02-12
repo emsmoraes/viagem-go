@@ -1,6 +1,7 @@
 import { AuthModule } from './auth/auth.module';
 import { EnvModule } from './env/env.module';
 import { KeyModule } from './key/key.module';
+import { ProposalModule } from './proposal/proposal.module';
 import { UserAvatarModule } from './user-avatar/user-avatar.module';
 import { UserForgotPasswordModule } from './user-forgot-password/user-forgot-password.module';
 import { UserProfileModule } from './user-profile/user-profile.module';
@@ -14,4 +15,5 @@ export const featureModules = [
   UserProfileModule,
   UserForgotPasswordModule,
   UserAvatarModule,
+  ProposalModule,
 ];

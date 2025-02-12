@@ -19,7 +19,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
   
-    const payload = { sub: user.id, username: user.name };
+    const payload = { userId: user.id, username: user.name };
     
     return {
       user,
