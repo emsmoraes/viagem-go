@@ -15,10 +15,10 @@ export class ProposalService {
     return this.proposalRepository.findAll({ userId });
   }
 
-  async findOne(id: string, userId: string) {
+  async findOne(proposalId: string, userId: string) {
     const proposal = await this.proposalRepository.findOne({
       userId,
-      proposalId: id,
+      proposalId: proposalId,
     });
     if (!proposal) {
       throw new NotFoundException('Proposta não encontrada');
@@ -27,11 +27,15 @@ export class ProposalService {
     return proposal;
   }
 
-  update(id: number, updateProposalDto: UpdateProposalDto) {
-    return `This action updates a #${id} proposal`;
+  async update(proposalId: string, updateProposalDto: UpdateProposalDto, userId: string) {
+    return await this.proposalRepository.update({
+      proposalId: proposalId,
+      title: updateProposalDto.title,
+      userId,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} proposal`;
+  async remove(proposalId: string, userId: string) {
+    return await this.proposalRepository.delete({ proposalId, userId });
   }
 }

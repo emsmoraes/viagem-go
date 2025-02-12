@@ -35,4 +35,33 @@ export class ProposalRepository {
       },
     });
   }
+
+  async update({
+    userId,
+    proposalId,
+    title,
+  }: {
+    userId: string;
+    proposalId: string;
+    title: string;
+  }) {
+    return await this.prisma.proposal.update({
+      where: {
+        id: proposalId,
+        userId: userId,
+      },
+      data: {
+        title,
+      },
+    });
+  }
+
+  async delete({ userId, proposalId }: { userId: string; proposalId: string }) {
+    return await this.prisma.proposal.delete({
+      where: {
+        id: proposalId,
+        userId: userId,
+      },
+    });
+  }
 }

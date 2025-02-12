@@ -39,16 +39,21 @@ export class ProposalController {
     return this.proposalService.findOne(id, userId);
   }
 
+  @UseGuards(AuthGuard)
   @Patch(':id')
   update(
     @Param('id') id: string,
     @Body() updateProposalDto: UpdateProposalDto,
+    @Request() req,
   ) {
-    return this.proposalService.update(+id, updateProposalDto);
+    const userId = req.user.userId;
+    return this.proposalService.update(id, updateProposalDto, userId);
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.proposalService.remove(+id);
+  remove(@Param('id') id: string, @Request() req) {
+    const userId = req.user.userId;
+    return this.proposalService.remove(id, userId);
   }
 }

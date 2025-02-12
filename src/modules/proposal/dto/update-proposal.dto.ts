@@ -1,4 +1,9 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateProposalDto } from './create-proposal.dto';
+import { IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
-export class UpdateProposalDto extends PartialType(CreateProposalDto) {}
+export class UpdateProposalDto {
+  @ApiProperty({ example: 'Rio de Janeiro', required: true })
+  @IsString()
+  title: string;
+}
+
