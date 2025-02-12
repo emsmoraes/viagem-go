@@ -1,8 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/shared/database/prisma/prisma.service';
 import { UpdateUserProfileDto } from '../dto/update-user-profile.dto';
-import { validateOrReject } from 'class-validator';
-import { handleErrors } from 'src/shared/helpers/validation-error.helper';
 
 @Injectable()
 export class UserProfileRepository {
@@ -19,18 +17,13 @@ export class UserProfileRepository {
       throw new NotFoundException('Usuário não encontrado');
     }
 
-    const userData = new UpdateUserProfileDto();
-
     try {
-      Object.assign(userData, data);
-      await validateOrReject(userData);
-
       await this.prisma.user.update({
         where: { id: id },
-        data: userData,
+        data: data,
       });
     } catch (e) {
-      handleErrors(e);
+      console.log(e);
     }
   }
 
@@ -45,7 +38,7 @@ export class UserProfileRepository {
       throw new NotFoundException('Usuário não encontrado');
     }
 
-    delete user.password
+    delete user.password;
 
     return user;
   }

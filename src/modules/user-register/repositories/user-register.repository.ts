@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';
 import { PrismaService } from 'src/shared/database/prisma/prisma.service';
-import { handleErrors } from 'src/shared/helpers/validation-error.helper';
 import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
@@ -22,7 +21,7 @@ export class UserRegisterRepository {
 
       return createdUser;
     } catch (e) {
-      handleErrors(e);
+      console.log(e);
     }
   }
 
@@ -71,7 +70,7 @@ export class UserRegisterRepository {
         return updatedUser;
       });
     } catch (e) {
-      handleErrors(e);
+      console.log(e);
     }
   }
 }

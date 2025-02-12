@@ -1,8 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserForgotPasswordDto } from './dto/create-user-forgot-password.dto';
 import { UpdateUserForgotPasswordDto } from './dto/update-user-forgot-password.dto';
-import { handleErrors } from 'src/shared/helpers/validation-error.helper';
-import { validateOrReject } from 'class-validator';
 import { UserForgotPasswordRepository } from './repositories/user-forgot-password.repository';
 import { UserKeyRepository } from '../key/repositories/key.repository';
 import { UserRegisterRepository } from '../user-register/repositories/user-register.repository';
@@ -18,13 +16,8 @@ export class UserForgotPasswordService {
     private readonly mailerService: MailerService,
   ) {}
 
-  async create(createUserForgotPasswordDto: CreateUserForgotPasswordDto) {
-    const data = new CreateUserForgotPasswordDto();
-
+  async create(data: CreateUserForgotPasswordDto) {
     try {
-      Object.assign(data, createUserForgotPasswordDto);
-      await validateOrReject(data);
-
       const user = await this.userRegisterRepository.findByEmail(data.email);
 
       if (!user) {
@@ -45,20 +38,12 @@ export class UserForgotPasswordService {
         context: { redirectUrl: `${link}` },
       });
     } catch (e) {
-      handleErrors(e);
+      console.log(e);
     }
   }
 
-  async update(
-    keyParam: string,
-    updateUserForgotPasswordDto: UpdateUserForgotPasswordDto,
-  ) {
-    const data = new UpdateUserForgotPasswordDto();
-
+  async update(keyParam: string, data: UpdateUserForgotPasswordDto) {
     try {
-      Object.assign(data, updateUserForgotPasswordDto);
-      await validateOrReject(data);
-
       const key = await this.userKeyRepository.findByKey(keyParam);
 
       if (!key) {
@@ -76,7 +61,7 @@ export class UserForgotPasswordService {
 
       await this.userKeyRepository.deleteKeyByKey(key.key);
     } catch (e) {
-      handleErrors(e);
+      console.log(e);
     }
   }
 }

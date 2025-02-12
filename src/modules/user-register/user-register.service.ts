@@ -3,7 +3,6 @@ import { UserRegisterRepository } from './repositories/user-register.repository'
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { validateOrReject } from 'class-validator';
-import { handleErrors } from 'src/shared/helpers/validation-error.helper';
 import { MailerService } from '@nestjs-modules/mailer';
 import { UserKeyRepository } from '../key/repositories/key.repository';
 
@@ -16,12 +15,7 @@ export class UserService {
   ) {}
 
   async create(data: CreateUserDto) {
-    const userData = new CreateUserDto();
-
     try {
-      Object.assign(userData, data);
-      await validateOrReject(userData);
-
       const createdUser = await this.userRegisterRepository.create(data);
       const createdUserKey = await this.userKeyRepository.create({
         type: 'account_creation',
@@ -37,19 +31,15 @@ export class UserService {
         context: { redirectUrl: `${link}` },
       });
     } catch (e) {
-      handleErrors(e);
+      console.log(e);
     }
   }
 
   async update(key: string, data: UpdateUserDto) {
-    const userData = new UpdateUserDto();
-
     try {
-      Object.assign(userData, data);
-      await validateOrReject(userData);
       this.userRegisterRepository.UpdateByKey(key, data);
     } catch (e) {
-      handleErrors(e);
+      console.log(e);
     }
   }
 }
