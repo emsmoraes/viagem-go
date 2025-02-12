@@ -13,4 +13,26 @@ export class ProposalRepository {
       },
     });
   }
+
+  async findAll({ userId }: { userId: string }) {
+    return await this.prisma.proposal.findMany({
+      where: {
+        userId,
+      },
+    });
+  }
+
+  async findOne({
+    userId,
+    proposalId,
+  }: {
+    userId: string;
+    proposalId: string;
+  }) {
+    return await this.prisma.proposal.findFirst({
+      where: {
+        AND: [{ id: proposalId }, { userId: userId }],
+      },
+    });
+  }
 }

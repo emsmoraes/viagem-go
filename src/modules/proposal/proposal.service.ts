@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProposalDto } from './dto/create-proposal.dto';
 import { UpdateProposalDto } from './dto/update-proposal.dto';
 import { ProposalRepository } from './repositories/proposal.repository';
@@ -7,16 +7,24 @@ import { ProposalRepository } from './repositories/proposal.repository';
 export class ProposalService {
   constructor(private readonly proposalRepository: ProposalRepository) {}
 
-  async create(data: CreateProposalDto, userId) {
+  async create(data: CreateProposalDto, userId: string) {
     return this.proposalRepository.create({ title: data.title, userId });
   }
 
-  findAll() {
-    return `This action returns all proposal`;
+  findAll(userId: string) {
+    return this.proposalRepository.findAll({ userId });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} proposal`;
+  async findOne(id: string, userId: string) {
+    const proposal = await this.proposalRepository.findOne({
+      userId,
+      proposalId: id,
+    });
+    if (!proposal) {
+      throw new NotFoundException('Proposta não encontrada');
+    }
+
+    return proposal;
   }
 
   update(id: number, updateProposalDto: UpdateProposalDto) {

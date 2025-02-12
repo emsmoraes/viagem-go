@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { ProposalService } from './proposal.service';
 import { CreateProposalDto } from './dto/create-proposal.dto';
 import { UpdateProposalDto } from './dto/update-proposal.dto';
@@ -15,18 +25,25 @@ export class ProposalController {
     return this.proposalService.create(createProposalDto, userId);
   }
 
+  @UseGuards(AuthGuard)
   @Get()
-  findAll() {
-    return this.proposalService.findAll();
+  findAll(@Request() req) {
+    const userId = req.user.userId;
+    return this.proposalService.findAll(userId);
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.proposalService.findOne(+id);
+  findOne(@Param('id') id: string, @Request() req) {
+    const userId = req.user.userId;
+    return this.proposalService.findOne(id, userId);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProposalDto: UpdateProposalDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateProposalDto: UpdateProposalDto,
+  ) {
     return this.proposalService.update(+id, updateProposalDto);
   }
 
