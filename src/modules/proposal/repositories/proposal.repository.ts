@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/database/prisma/prisma.service';
+import { UpdateProposalDto } from '../dto/update-proposal.dto';
 
 @Injectable()
 export class ProposalRepository {
@@ -39,20 +40,28 @@ export class ProposalRepository {
   async update({
     userId,
     proposalId,
-    title,
+    data,
+    proposalCoverUrl
   }: {
     userId: string;
     proposalId: string;
-    title: string;
+    data: UpdateProposalDto;
+    proposalCoverUrl?: string;
   }) {
+    const updateData: any = {
+      ...data,
+    };
+  
+    if (proposalCoverUrl) {
+      updateData.coverUrl = proposalCoverUrl;
+    }
+  
     return await this.prisma.proposal.update({
       where: {
         id: proposalId,
         userId: userId,
       },
-      data: {
-        title,
-      },
+      data: updateData,
     });
   }
 

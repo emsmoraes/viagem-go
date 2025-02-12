@@ -12,10 +12,6 @@ export class UserAvatarService {
   ) {}
 
   async update(userId: string, file: Express.Multer.File) {
-    if (!file) {
-      throw new Error('Arquivo não enviado');
-    }
-
     const fileExtension = file.originalname.split('.').pop();
     const fileName = `${userId}.${fileExtension}`;
 

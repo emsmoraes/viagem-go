@@ -13,13 +13,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import * as multer from 'multer';
 import { convertToWebP } from 'src/shared/helpers/image-helper';
 import { AuthGuard } from '../auth/auth.guard';
-
-const fileFilter = (req, file, cb) => {
-  if (!file.mimetype.startsWith('image/')) {
-    return cb(new BadRequestException('Apenas imagens são permitidas!'), false);
-  }
-  cb(null, true);
-};
+import { fileFilter } from '../../shared/helpers/images-filter';
 
 const storage = multer.memoryStorage();
 

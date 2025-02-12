@@ -2,10 +2,16 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProposalDto } from './dto/create-proposal.dto';
 import { UpdateProposalDto } from './dto/update-proposal.dto';
 import { ProposalRepository } from './repositories/proposal.repository';
+import { AwsService } from '../aws/aws.service';
+import { EnvService } from '../env/env.service';
 
 @Injectable()
 export class ProposalService {
-  constructor(private readonly proposalRepository: ProposalRepository) {}
+  constructor(
+    private readonly proposalRepository: ProposalRepository,
+    private readonly awsService: AwsService,
+    private readonly envService: EnvService,
+  ) {}
 
   async create(data: CreateProposalDto, userId: string) {
     return this.proposalRepository.create({ title: data.title, userId });
@@ -27,11 +33,35 @@ export class ProposalService {
     return proposal;
   }
 
-  async update(proposalId: string, updateProposalDto: UpdateProposalDto, userId: string) {
+  async update(
+    proposalId: string,
+    updateProposalDto: UpdateProposalDto,
+    userId: string,
+    coverImage?: Express.Multer.File,
+  ) {
+    let proposalCoverUrl: string | undefined = undefined;
+  
+    if (coverImage) {
+      const fileExtension = coverImage.originalname.split('.').pop();
+      const fileName = `${proposalId}.${fileExtension}`;
+  
+      await this.awsService.delete(
+        fileName,
+        this.envService.get('S3_PROPOSAL_COVERS_FOLDER_PATH'),
+      );
+  
+      proposalCoverUrl = await this.awsService.post(
+        fileName,
+        coverImage.buffer,
+        this.envService.get('S3_PROPOSAL_COVERS_FOLDER_PATH'),
+      );
+    }
+  
     return await this.proposalRepository.update({
       proposalId: proposalId,
-      title: updateProposalDto.title,
+      data: updateProposalDto,
       userId,
+      proposalCoverUrl,
     });
   }
 

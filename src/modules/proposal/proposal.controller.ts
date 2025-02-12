@@ -8,11 +8,20 @@ import {
   Delete,
   UseGuards,
   Request,
+  UseInterceptors,
+  BadRequestException,
+  UploadedFile,
 } from '@nestjs/common';
 import { ProposalService } from './proposal.service';
 import { CreateProposalDto } from './dto/create-proposal.dto';
 import { UpdateProposalDto } from './dto/update-proposal.dto';
 import { AuthGuard } from '../auth/auth.guard';
+import { fileFilter } from '../../shared/helpers/images-filter';
+import { FileInterceptor } from '@nestjs/platform-express';
+import * as multer from 'multer';
+import { convertToWebP } from 'src/shared/helpers/image-helper';
+
+const storage = multer.memoryStorage();
 
 @Controller('proposal')
 export class ProposalController {
@@ -41,13 +50,27 @@ export class ProposalController {
 
   @UseGuards(AuthGuard)
   @Patch(':id')
-  update(
+  @UseInterceptors(
+    FileInterceptor('cover', {
+      storage,
+      fileFilter,
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
+  async update(
     @Param('id') id: string,
     @Body() updateProposalDto: UpdateProposalDto,
     @Request() req,
+    @UploadedFile() file: Express.Multer.File | undefined,
   ) {
     const userId = req.user.userId;
-    return this.proposalService.update(id, updateProposalDto, userId);
+    let webpFile: Express.Multer.File | undefined = undefined;
+
+    if (file) {
+      webpFile = await convertToWebP(file);
+    }
+
+    return this.proposalService.update(id, updateProposalDto, userId, webpFile);
   }
 
   @UseGuards(AuthGuard)
