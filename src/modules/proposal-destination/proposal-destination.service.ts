@@ -4,6 +4,7 @@ import { UpdateProposalDestinationDto } from './dto/update-proposal-destination.
 import { ProposalDestinationRepository } from './repositories/proposal-destination';
 import { AwsService } from '../aws/aws.service';
 import { EnvService } from '../env/env.service';
+import { extractFileName } from 'src/shared/helpers/extract-file-name';
 
 @Injectable()
 export class ProposalDestinationService {
@@ -15,9 +16,9 @@ export class ProposalDestinationService {
 
   async create(
     createProposalDestinationDto: CreateProposalDestinationDto,
-    coverImage?: Express.Multer.File,
+    coverImages?: Express.Multer.File[],
   ) {
-    let proposalCoverUrl: string | undefined = undefined;
+    let proposalCoverUrls: string[] = [];
 
     const data = {
       name: createProposalDestinationDto.name,
@@ -32,25 +33,26 @@ export class ProposalDestinationService {
     const createdDestination =
       await this.proposalDestinationRepository.create(data);
 
-    if (coverImage) {
-      const fileExtension = coverImage.originalname.split('.').pop();
-      const fileName = `${createdDestination.id}.${fileExtension}`;
+    if (coverImages && coverImages.length > 0) {
+      proposalCoverUrls = await Promise.all(
+        coverImages.map(async (image) => {
+          const fileExtension = image.originalname.split('.').pop();
+          const fileName = `${createdDestination.id}-${crypto.randomUUID()}.${fileExtension}`;
 
-      await this.awsService.delete(
-        fileName,
-        this.envService.get('S3_PROPOSAL_DESTINATION_COVERS_FOLDER_PATH'),
-      );
-
-      proposalCoverUrl = await this.awsService.post(
-        fileName,
-        coverImage.buffer,
-        this.envService.get('S3_PROPOSAL_DESTINATION_COVERS_FOLDER_PATH'),
+          return this.awsService.post(
+            fileName,
+            image.buffer,
+            this.envService.get('S3_PROPOSAL_DESTINATION_COVERS_FOLDER_PATH'),
+          );
+        }),
       );
     }
 
-    return this.proposalDestinationRepository.updateCoverUrl(
+    console.log(proposalCoverUrls);
+
+    return this.proposalDestinationRepository.updateCoverUrls(
       createdDestination.id,
-      proposalCoverUrl,
+      proposalCoverUrls,
     );
   }
 
@@ -69,24 +71,39 @@ export class ProposalDestinationService {
     proposalDestinationId: string,
     userId: string,
     updateProposalDestinationDto: UpdateProposalDestinationDto,
-    coverImage?: Express.Multer.File,
+    coverImages?: Express.Multer.File[],
   ) {
-    let proposalDestinationCoverUrl: string | undefined = undefined;
-
-    if (coverImage) {
-      const fileExtension = coverImage.originalname.split('.').pop();
-      const fileName = `${proposalDestinationId}.${fileExtension}`;
-
-      await this.awsService.delete(
-        fileName,
-        this.envService.get('S3_PROPOSAL_DESTINATION_COVERS_FOLDER_PATH'),
+    const s3Folder = this.envService.get(
+      'S3_PROPOSAL_DESTINATION_COVERS_FOLDER_PATH',
+    );
+    const existingDestination =
+      await this.proposalDestinationRepository.findOne(
+        proposalDestinationId,
+        userId,
       );
+    const storedImages = existingDestination?.images ?? [];
 
-      proposalDestinationCoverUrl = await this.awsService.post(
-        fileName,
-        coverImage.buffer,
-        this.envService.get('S3_PROPOSAL_DESTINATION_COVERS_FOLDER_PATH'),
+    const updatedImages = updateProposalDestinationDto.existingImages ?? [];
+
+    const imagesToDelete = storedImages.filter(
+      (img) => !updatedImages.includes(img),
+    );
+    await Promise.all(
+      imagesToDelete.map((imageUrl) => {
+        const fileName = extractFileName(imageUrl, s3Folder);
+        return this.awsService.delete(fileName, s3Folder);
+      }),
+    );
+
+    if (coverImages?.length) {
+      const newImageUrls = await Promise.all(
+        coverImages.map(async (coverImage) => {
+          const fileExtension = coverImage.originalname.split('.').pop();
+          const fileName = `${proposalDestinationId}-${crypto.randomUUID()}.${fileExtension}`;
+          return this.awsService.post(fileName, coverImage.buffer, s3Folder);
+        }),
       );
+      updatedImages.push(...newImageUrls);
     }
 
     const data = {
@@ -94,25 +111,24 @@ export class ProposalDestinationService {
       description: updateProposalDestinationDto.description,
       departureDate: updateProposalDestinationDto.departureDate,
       returnDate: updateProposalDestinationDto.returnDate,
+      images: updatedImages,
     };
 
-    return await this.proposalDestinationRepository.update(
+    return this.proposalDestinationRepository.update(
       proposalDestinationId,
       userId,
       data,
-      proposalDestinationCoverUrl,
     );
   }
 
   async remove(proposalDestinationId: string, userId: string) {
-    await this.awsService.delete(
-      `${proposalDestinationId}.webp`,
-      this.envService.get('S3_PROPOSAL_DESTINATION_COVERS_FOLDER_PATH'),
-    );
-
-    return this.proposalDestinationRepository.remove(
-      proposalDestinationId,
-      userId,
-    );
+    const s3Folder = this.envService.get('S3_PROPOSAL_DESTINATION_COVERS_FOLDER_PATH');
+    
+    const existingDestination = await this.proposalDestinationRepository.findOne(proposalDestinationId, userId);
+    const images = existingDestination?.images ?? [];
+  
+    await Promise.all(images.map(imageUrl => this.awsService.delete(extractFileName(imageUrl, s3Folder), s3Folder)));
+  
+    return this.proposalDestinationRepository.remove(proposalDestinationId, userId);
   }
 }

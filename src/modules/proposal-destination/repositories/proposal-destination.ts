@@ -38,10 +38,10 @@ export class ProposalDestinationRepository {
     return proposalDestination;
   }
 
-  async updateCoverUrl(id: string, coverUrl: string) {
+  async updateCoverUrls(id: string, images: string[]) {
     return await this.prisma.proposalDestination.update({
       where: { id },
-      data: { coverUrl },
+      data: { images },
     });
   }
 
@@ -49,7 +49,6 @@ export class ProposalDestinationRepository {
     id: string,
     userId: string,
     data: Prisma.ProposalDestinationUpdateInput,
-    proposalDestinationCoverUrl?: string,
   ) {
     const proposalDestination =
       await this.prisma.proposalDestination.findUnique({
@@ -71,7 +70,6 @@ export class ProposalDestinationRepository {
       where: { id },
       data: {
         ...data,
-        coverUrl: proposalDestinationCoverUrl ?? data.coverUrl,
       },
     });
   }

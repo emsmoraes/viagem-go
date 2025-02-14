@@ -1,7 +1,7 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { CreateProposalDestinationDto } from './create-proposal-destination.dto';
 import { Type } from 'class-transformer';
-import { IsString, IsOptional, IsDate } from 'class-validator';
+import { IsString, IsOptional, IsDate, IsArray } from 'class-validator';
 
 export class UpdateProposalDestinationDto extends PartialType(
   CreateProposalDestinationDto,
@@ -31,4 +31,17 @@ export class UpdateProposalDestinationDto extends PartialType(
   @Type(() => Date)
   @IsDate()
   returnDate?: Date;
+
+  @ApiProperty({
+    example: [
+      'https://s3.amazonaws.com/bucket/imagens/proposta1.jpg',
+      'https://s3.amazonaws.com/bucket/imagens/proposta2.jpg',
+    ],
+    required: false,
+    description: 'Lista de URLs das imagens que devem ser mantidas',
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  existingImages?: string[];
 }
