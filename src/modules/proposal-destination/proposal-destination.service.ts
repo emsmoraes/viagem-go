@@ -38,13 +38,13 @@ export class ProposalDestinationService {
 
       await this.awsService.delete(
         fileName,
-        this.envService.get('S3_PROPOSAL_COVERS_FOLDER_PATH'),
+        this.envService.get('S3_PROPOSAL_DESTINATION_COVERS_FOLDER_PATH'),
       );
 
       proposalCoverUrl = await this.awsService.post(
         fileName,
         coverImage.buffer,
-        this.envService.get('S3_PROPOSAL_COVERS_FOLDER_PATH'),
+        this.envService.get('S3_PROPOSAL_DESTINATION_COVERS_FOLDER_PATH'),
       );
     }
 
@@ -58,18 +58,61 @@ export class ProposalDestinationService {
     return this.proposalDestinationRepository.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} proposalDestination`;
+  findOne(proposalDestinationId: string, userId: string) {
+    return this.proposalDestinationRepository.findOne(
+      proposalDestinationId,
+      userId,
+    );
   }
 
-  update(
-    id: number,
+  async update(
+    proposalDestinationId: string,
+    userId: string,
     updateProposalDestinationDto: UpdateProposalDestinationDto,
+    coverImage?: Express.Multer.File,
   ) {
-    return `This action updates a #${id} proposalDestination`;
+    let proposalDestinationCoverUrl: string | undefined = undefined;
+
+    if (coverImage) {
+      const fileExtension = coverImage.originalname.split('.').pop();
+      const fileName = `${proposalDestinationId}.${fileExtension}`;
+
+      await this.awsService.delete(
+        fileName,
+        this.envService.get('S3_PROPOSAL_DESTINATION_COVERS_FOLDER_PATH'),
+      );
+
+      proposalDestinationCoverUrl = await this.awsService.post(
+        fileName,
+        coverImage.buffer,
+        this.envService.get('S3_PROPOSAL_DESTINATION_COVERS_FOLDER_PATH'),
+      );
+    }
+
+    const data = {
+      name: updateProposalDestinationDto.name,
+      description: updateProposalDestinationDto.description,
+      departureDate: updateProposalDestinationDto.departureDate,
+      returnDate: updateProposalDestinationDto.returnDate,
+    };
+
+    return await this.proposalDestinationRepository.update(
+      proposalDestinationId,
+      userId,
+      data,
+      proposalDestinationCoverUrl,
+    );
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} proposalDestination`;
+  async remove(proposalDestinationId: string, userId: string) {
+    await this.awsService.delete(
+      `${proposalDestinationId}.webp`,
+      this.envService.get('S3_PROPOSAL_DESTINATION_COVERS_FOLDER_PATH'),
+    );
+
+    return this.proposalDestinationRepository.remove(
+      proposalDestinationId,
+      userId,
+    );
   }
 }

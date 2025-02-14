@@ -40,23 +40,23 @@ export class ProposalService {
     coverImage?: Express.Multer.File,
   ) {
     let proposalCoverUrl: string | undefined = undefined;
-  
+
     if (coverImage) {
       const fileExtension = coverImage.originalname.split('.').pop();
       const fileName = `${proposalId}.${fileExtension}`;
-  
+
       await this.awsService.delete(
         fileName,
         this.envService.get('S3_PROPOSAL_COVERS_FOLDER_PATH'),
       );
-  
+
       proposalCoverUrl = await this.awsService.post(
         fileName,
         coverImage.buffer,
         this.envService.get('S3_PROPOSAL_COVERS_FOLDER_PATH'),
       );
     }
-  
+
     return await this.proposalRepository.update({
       proposalId: proposalId,
       data: updateProposalDto,
@@ -66,6 +66,10 @@ export class ProposalService {
   }
 
   async remove(proposalId: string, userId: string) {
+    await this.awsService.delete(
+      `${proposalId}.webp`,
+      this.envService.get('S3_PROPOSAL_COVERS_FOLDER_PATH'),
+    );
     return await this.proposalRepository.delete({ proposalId, userId });
   }
 }

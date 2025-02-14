@@ -13,7 +13,8 @@ export class CreateProposalDestinationDto {
     required: true,
   })
   @IsString()
-  description: string;
+  @IsOptional()
+  description?: string;
 
   @ApiProperty({
     example: 'a12b3c4d-5678-90ef-ghij-1234567890kl',

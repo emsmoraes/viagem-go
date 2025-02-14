@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/shared/database/prisma/prisma.service';
 
@@ -14,10 +18,83 @@ export class ProposalDestinationRepository {
     return await this.prisma.proposalDestination.create({ data });
   }
 
+  async findOne(id: string, userId: string) {
+    const proposalDestination =
+      await this.prisma.proposalDestination.findUnique({
+        where: { id },
+        include: { proposal: true },
+      });
+
+    if (!proposalDestination) {
+      throw new NotFoundException('Destino não encontrado');
+    }
+
+    if (proposalDestination.proposal.userId !== userId) {
+      throw new ForbiddenException(
+        'Você não tem permissão para acessar este destino',
+      );
+    }
+
+    return proposalDestination;
+  }
+
   async updateCoverUrl(id: string, coverUrl: string) {
     return await this.prisma.proposalDestination.update({
       where: { id },
       data: { coverUrl },
+    });
+  }
+
+  async update(
+    id: string,
+    userId: string,
+    data: Prisma.ProposalDestinationUpdateInput,
+    proposalDestinationCoverUrl?: string,
+  ) {
+    const proposalDestination =
+      await this.prisma.proposalDestination.findUnique({
+        where: { id },
+        include: { proposal: true },
+      });
+
+    if (!proposalDestination) {
+      throw new NotFoundException('Destino não encontrado');
+    }
+
+    if (proposalDestination.proposal.userId !== userId) {
+      throw new ForbiddenException(
+        'Você não tem permissão para atualizar este destino',
+      );
+    }
+
+    return await this.prisma.proposalDestination.update({
+      where: { id },
+      data: {
+        ...data,
+        coverUrl: proposalDestinationCoverUrl ?? data.coverUrl,
+      },
+    });
+  }
+
+  async remove(id: string, userId: string) {
+    const proposalDestination =
+      await this.prisma.proposalDestination.findUnique({
+        where: { id },
+        include: { proposal: true },
+      });
+
+    if (!proposalDestination) {
+      throw new NotFoundException('Destino não encontrado');
+    }
+
+    if (proposalDestination.proposal.userId !== userId) {
+      throw new ForbiddenException(
+        'Você não tem permissão para remover este destino',
+      );
+    }
+
+    return await this.prisma.proposalDestination.delete({
+      where: { id },
     });
   }
 }
