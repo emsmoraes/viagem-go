@@ -21,6 +21,7 @@ model User {
 
   userKeys UserKey[]
   Proposal Proposal[]
+  Customer Customer[]
 
   @@map("users")
 }
@@ -73,6 +74,63 @@ model ProposalDayByDay {
   proposalId    String
   proposal      Proposal  @relation(fields: [proposalId], references: [id], onDelete: Cascade, name: "ProposalToDayByDays")
   createdAt     DateTime  @default(now())
+}
+
+model Customer {
+  id                      String    @id @default(uuid())
+  userId                  String
+  fullName                String
+  imageUrl                String?
+  nickname                String?
+  rg                      String?
+  cpf                     String?
+  birthDate               DateTime?
+  email                   String?
+  phone                   String?
+  maritalStatus           String?
+  profession              String?
+  numberOfChildren        Int?
+  postalCode              String?
+  address                 String?
+  addressNumber           String?
+  neighborhood            String?
+  complement              String?
+  city                    String?
+  state                   String?
+  country                 String?
+  family                  String[]
+  accommodationPreference String[]
+  airPreference           String[]
+  travelStyle             String[]
+  interestedExperiences   String[]
+  dreamTrips              String[]
+  recentTrips             String[]
+  tags                    String[]
+  observation             String?
+  referralSource          String?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  documents CustomerDocument[]
+
+  @@map("customers")
+}
+
+model CustomerDocument {
+  id             String    @id @default(uuid())
+  url            String
+  type           String
+  name           String?
+  issueDate      DateTime?
+  expirationDate DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  Customer       Customer? @relation(fields: [customerId], references: [id])
+  customerId     String?
+
+  @@map("customer_documents")
 }
 
 enum ProposalStatus {

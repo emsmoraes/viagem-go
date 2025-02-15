@@ -1,8 +1,5 @@
 import { Module } from '@nestjs/common';
-import {
-  ConfigModule,
-  ConfigModule as ConfigModuleNest,
-} from '@nestjs/config';
+import { ConfigModule, ConfigModule as ConfigModuleNest } from '@nestjs/config';
 import { envSchema } from './modules/env/env';
 import { PrismaModule } from './shared/database/prisma.module';
 import { featureModules } from './modules';
