@@ -1,26 +1,90 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { AwsService } from '../aws/aws.service';
+import { EnvService } from '../env/env.service';
+import { CustomerRepository } from './repositories/customer.repository';
 
 @Injectable()
 export class CustomerService {
-  create(createCustomerDto: CreateCustomerDto) {
-    return 'This action adds a new customer';
+  constructor(
+    private readonly customerRepository: CustomerRepository,
+    private readonly awsService: AwsService,
+    private readonly envService: EnvService,
+  ) {}
+
+  async create(
+    createCustomerDto: CreateCustomerDto,
+    userId: string,
+    customerImage?: Express.Multer.File,
+  ) {
+    let customerImageUrl: string | undefined = undefined;
+    const createdCustomer = await this.customerRepository.create(
+      createCustomerDto,
+      userId,
+    );
+
+    if (customerImage) {
+      const fileExtension = customerImage.originalname.split('.').pop();
+      const fileName = `${createdCustomer.id}.${fileExtension}`;
+
+      await this.awsService.delete(
+        fileName,
+        this.envService.get('S3_CUSTOMER_IMAGES_FOLDER_PATH'),
+      );
+
+      customerImageUrl = await this.awsService.post(
+        fileName,
+        customerImage.buffer,
+        this.envService.get('S3_CUSTOMER_IMAGES_FOLDER_PATH'),
+      );
+    }
+
+    await this.customerRepository.updateImageUrl(
+      createdCustomer.id,
+      customerImageUrl,
+      userId,
+    );
+
+    return;
   }
 
-  findAll() {
-    return `This action returns all customer`;
+  async findAll(userId: string) {
+    return await this.customerRepository.findAll(userId);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} customer`;
+  async findOne(id: string, userId: string) {
+    return await this.customerRepository.findOne(id, userId);
   }
 
-  update(id: number, updateCustomerDto: UpdateCustomerDto) {
-    return `This action updates a #${id} customer`;
+  async update(
+    id: string,
+    updateCustomerDto: UpdateCustomerDto,
+    userId: string,
+    customerImage?: Express.Multer.File,
+  ) {
+    let customerImageUrl: string | undefined = undefined;
+
+    if (customerImage) {
+      const fileExtension = customerImage.originalname.split('.').pop();
+      const fileName = `${id}.${fileExtension}`;
+
+      await this.awsService.delete(
+        fileName,
+        this.envService.get('S3_CUSTOMER_IMAGES_FOLDER_PATH'),
+      );
+
+      customerImageUrl = await this.awsService.post(
+        fileName,
+        customerImage.buffer,
+        this.envService.get('S3_CUSTOMER_IMAGES_FOLDER_PATH'),
+      );
+    }
+
+    return await this.customerRepository.update(id, updateCustomerDto, userId);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} customer`;
+  async remove(id: string, userId: string) {
+    return await this.customerRepository.remove(id, userId);
   }
 }
