@@ -5,6 +5,7 @@ import { ProposalDestinationRepository } from './repositories/proposal-destinati
 import { AwsService } from '../aws/aws.service';
 import { EnvService } from '../env/env.service';
 import { extractFileName } from 'src/shared/helpers/extract-file-name';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ProposalDestinationService {
@@ -20,7 +21,7 @@ export class ProposalDestinationService {
   ) {
     let proposalCoverUrls: string[] = [];
 
-    const data = {
+    const data: Prisma.ProposalDestinationCreateInput = {
       name: createProposalDestinationDto.name,
       description: createProposalDestinationDto.description,
       departureDate: createProposalDestinationDto.departureDate,
@@ -106,7 +107,7 @@ export class ProposalDestinationService {
       updatedImages.push(...newImageUrls);
     }
 
-    const data = {
+    const data: Prisma.ProposalDestinationUpdateInput = {
       name: updateProposalDestinationDto.name,
       description: updateProposalDestinationDto.description,
       departureDate: updateProposalDestinationDto.departureDate,
@@ -122,13 +123,26 @@ export class ProposalDestinationService {
   }
 
   async remove(proposalDestinationId: string, userId: string) {
-    const s3Folder = this.envService.get('S3_PROPOSAL_DESTINATION_COVERS_FOLDER_PATH');
-    
-    const existingDestination = await this.proposalDestinationRepository.findOne(proposalDestinationId, userId);
+    const s3Folder = this.envService.get(
+      'S3_PROPOSAL_DESTINATION_COVERS_FOLDER_PATH',
+    );
+
+    const existingDestination =
+      await this.proposalDestinationRepository.findOne(
+        proposalDestinationId,
+        userId,
+      );
     const images = existingDestination?.images ?? [];
-  
-    await Promise.all(images.map(imageUrl => this.awsService.delete(extractFileName(imageUrl, s3Folder), s3Folder)));
-  
-    return this.proposalDestinationRepository.remove(proposalDestinationId, userId);
+
+    await Promise.all(
+      images.map((imageUrl) =>
+        this.awsService.delete(extractFileName(imageUrl, s3Folder), s3Folder),
+      ),
+    );
+
+    return this.proposalDestinationRepository.remove(
+      proposalDestinationId,
+      userId,
+    );
   }
 }

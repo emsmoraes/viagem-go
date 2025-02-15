@@ -48,7 +48,7 @@ model Proposal {
   createdAt     DateTime              @default(now())
   updatedAt     DateTime              @updatedAt
   destinations  ProposalDestination[] @relation("ProposalToDestinations")
-  // dayByDays     ProposalDayByDay[]    @relation("ProposalToDayByDays")
+  dayByDays     ProposalDayByDay[]    @relation("ProposalToDayByDays")
 }
 
 model ProposalDestination {
@@ -61,21 +61,19 @@ model ProposalDestination {
   proposalId    String
   proposal      Proposal  @relation(fields: [proposalId], references: [id], onDelete: Cascade, name: "ProposalToDestinations")
   createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
 }
 
-// model ProposalDayByDay {
-//   id            String    @id @default(uuid())
-//   title         String
-//   coverUrl      String?
-//   description   String?
-//   departureDate DateTime?
-//   returnDate    DateTime?
-//   proposalId    String
-//   proposal      Proposal  @relation(fields: [proposalId], references: [id], onDelete: Cascade, name: "ProposalToDayByDays")
-//   createdAt     DateTime  @default(now())
-//   updatedAt     DateTime  @updatedAt
-// }
+model ProposalDayByDay {
+  id            String    @id @default(uuid())
+  title         String
+  images        String[]
+  description   String?
+  departureDate DateTime?
+  returnDate    DateTime?
+  proposalId    String
+  proposal      Proposal  @relation(fields: [proposalId], references: [id], onDelete: Cascade, name: "ProposalToDayByDays")
+  createdAt     DateTime  @default(now())
+}
 
 enum ProposalStatus {
   INCOMPLETE

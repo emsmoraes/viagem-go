@@ -1,6 +1,7 @@
 import { AuthModule } from './auth/auth.module';
 import { EnvModule } from './env/env.module';
 import { KeyModule } from './key/key.module';
+import { ProposalDayBayDayModule } from './proposal-day-by-day/proposal-day-by-day.module';
 import { ProposalDestinationModule } from './proposal-destination/proposal-destination.module';
 import { ProposalModule } from './proposal/proposal.module';
 import { UserAvatarModule } from './user-avatar/user-avatar.module';
@@ -17,5 +18,6 @@ export const featureModules = [
   UserForgotPasswordModule,
   UserAvatarModule,
   ProposalModule,
-  ProposalDestinationModule
+  ProposalDestinationModule,
+  ProposalDayBayDayModule,
 ];
