@@ -120,9 +120,8 @@ model Customer {
 
 model CustomerDocument {
   id             String    @id @default(uuid())
-  url            String
-  type           String
-  name           String?
+  fileUrls       String[]
+  name           String
   issueDate      DateTime?
   expirationDate DateTime?
   createdAt      DateTime  @default(now())

@@ -1,4 +1,5 @@
 import { AuthModule } from './auth/auth.module';
+import { CustomerDocumentModule } from './customer-document/customer-document.module';
 import { CustomerModule } from './customer/customer.module';
 import { CustomerService } from './customer/customer.service';
 import { EnvModule } from './env/env.module';
@@ -23,4 +24,5 @@ export const featureModules = [
   ProposalDestinationModule,
   ProposalDayBayDayModule,
   CustomerModule,
+  CustomerDocumentModule,
 ];
