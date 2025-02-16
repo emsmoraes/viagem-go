@@ -4,6 +4,7 @@ import { CustomerModule } from './customer/customer.module';
 import { CustomerService } from './customer/customer.service';
 import { EnvModule } from './env/env.module';
 import { KeyModule } from './key/key.module';
+import { ProposalCustomerModule } from './proposal-customer/proposal-customer.module';
 import { ProposalDayBayDayModule } from './proposal-day-by-day/proposal-day-by-day.module';
 import { ProposalDestinationModule } from './proposal-destination/proposal-destination.module';
 import { ProposalModule } from './proposal/proposal.module';
@@ -25,4 +26,5 @@ export const featureModules = [
   ProposalDayBayDayModule,
   CustomerModule,
   CustomerDocumentModule,
+  ProposalCustomerModule,
 ];

@@ -34,6 +34,9 @@ export class ProposalRepository {
       where: {
         AND: [{ id: proposalId }, { userId: userId }],
       },
+      include: {
+        customers: true,
+      },
     });
   }
 

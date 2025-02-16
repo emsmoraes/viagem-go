@@ -50,6 +50,7 @@ model Proposal {
   updatedAt     DateTime              @updatedAt
   destinations  ProposalDestination[] @relation("ProposalToDestinations")
   dayByDays     ProposalDayByDay[]    @relation("ProposalToDayByDays")
+  customers     Customer[]            @relation("ProposalToCustomers")
 }
 
 model ProposalDestination {
@@ -111,7 +112,8 @@ model Customer {
   createdAt               DateTime  @default(now())
   updatedAt               DateTime  @updatedAt
 
-  user User @relation(fields: [userId], references: [id])
+  proposals Proposal[] @relation("ProposalToCustomers")
+  user      User       @relation(fields: [userId], references: [id])
 
   documents CustomerDocument[]
 
