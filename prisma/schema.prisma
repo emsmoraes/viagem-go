@@ -52,6 +52,7 @@ model Proposal {
   destinations  ProposalDestination[] @relation("ProposalToDestinations")
   dayByDays     ProposalDayByDay[]    @relation("ProposalToDayByDays")
   passengers    Passenger[]           @relation("ProposalToPassengers")
+  tickets       Ticket[]              @relation("ProposalToTickets")
 }
 
 model ProposalDestination {
@@ -146,9 +147,27 @@ model Passenger {
   @@map("passengers")
 }
 
+model Ticket {
+  id         String     @id @default(uuid())
+  name       String
+  type       TicketType
+  proposalId String
+  proposal   Proposal   @relation(fields: [proposalId], references: [id], onDelete: Cascade, name: "ProposalToTickets")
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@map("tickets")
+}
+
 enum ProposalStatus {
   INCOMPLETE
   AWAITING_RESPONSE
   CONFIRMED
   LOST
+}
+
+enum TicketType {
+  OUTBOUND
+  INBOUND
+  INTERNAL
 }
