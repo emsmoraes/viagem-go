@@ -50,7 +50,7 @@ model Proposal {
   updatedAt     DateTime              @updatedAt
   destinations  ProposalDestination[] @relation("ProposalToDestinations")
   dayByDays     ProposalDayByDay[]    @relation("ProposalToDayByDays")
-  customers     Customer[]            @relation("ProposalToCustomers")
+  passengers    Passenger[]           @relation("ProposalToPassengers")
 }
 
 model ProposalDestination {
@@ -112,10 +112,9 @@ model Customer {
   createdAt               DateTime  @default(now())
   updatedAt               DateTime  @updatedAt
 
-  proposals Proposal[] @relation("ProposalToCustomers")
-  user      User       @relation(fields: [userId], references: [id])
-
-  documents CustomerDocument[]
+  user       User               @relation(fields: [userId], references: [id])
+  passengers Passenger[]
+  documents  CustomerDocument[]
 
   @@map("customers")
 }
@@ -132,6 +131,18 @@ model CustomerDocument {
   customerId     String?
 
   @@map("customer_documents")
+}
+
+model Passenger {
+  id         String    @id @default(uuid())
+  name       String
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  proposalId String
+  proposal   Proposal  @relation(fields: [proposalId], references: [id], onDelete: Cascade, name: "ProposalToPassengers")
+  createdAt  DateTime  @default(now())
+
+  @@map("passengers")
 }
 
 enum ProposalStatus {

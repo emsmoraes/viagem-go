@@ -35,7 +35,9 @@ export class ProposalRepository {
         AND: [{ id: proposalId }, { userId: userId }],
       },
       include: {
-        customers: true,
+        destinations: true,
+        dayByDays: true,
+        passengers: true,
       },
     });
   }
@@ -44,7 +46,7 @@ export class ProposalRepository {
     userId,
     proposalId,
     data,
-    proposalCoverUrl
+    proposalCoverUrl,
   }: {
     userId: string;
     proposalId: string;
@@ -54,11 +56,11 @@ export class ProposalRepository {
     const updateData: any = {
       ...data,
     };
-  
+
     if (proposalCoverUrl) {
       updateData.coverUrl = proposalCoverUrl;
     }
-  
+
     return await this.prisma.proposal.update({
       where: {
         id: proposalId,
