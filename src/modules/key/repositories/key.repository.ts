@@ -12,6 +12,7 @@ export class UserKeyRepository {
         key: randomUUID(),
         userId: userId,
         type: type,
+        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
       },
     });
   }
@@ -39,5 +40,17 @@ export class UserKeyRepository {
         key,
       },
     });
+  }
+
+  async deleteExpiredKeys() {
+    const result = await this.prisma.userKey.deleteMany({
+      where: {
+        expiresAt: {
+          lt: new Date(),
+        },
+      },
+    });
+
+    return result.count;
   }
 }
