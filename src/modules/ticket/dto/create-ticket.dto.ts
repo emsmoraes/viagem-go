@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsEnum } from 'class-validator';
+import { IsString, IsEnum, IsInt, IsNumber, Min, IsOptional } from 'class-validator';
 
 enum TicketType {
   OUTBOUND,
@@ -29,4 +29,34 @@ export class CreateTicketDto {
   })
   @IsString()
   proposalId: string;
+
+  @ApiProperty({
+    example: 2,
+    description: 'Número de bagagens por passageiro',
+    required: false,
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  baggagePerPerson?: number;
+
+  @ApiProperty({
+    example: 180,
+    description: 'Duração total em minutos',
+    required: false,
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  duration?: number;
+
+  @ApiProperty({
+    example: 1500.50,
+    description: 'Valor do ticket',
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  price?: number;
 }

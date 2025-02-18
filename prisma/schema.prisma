@@ -148,14 +148,17 @@ model Passenger {
 }
 
 model Ticket {
-  id         String     @id @default(uuid())
-  name       String
-  type       TicketType
-  proposalId String
-  proposal   Proposal   @relation(fields: [proposalId], references: [id], onDelete: Cascade, name: "ProposalToTickets")
-  segments   Segment[]  @relation("TicketToSegments")
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id                String     @id @default(uuid())
+  name              String
+  type              TicketType
+  baggagePerPerson  Int?
+  duration          Int?
+  price             Decimal?   @db.Decimal(10, 2)
+  proposalId        String
+  proposal          Proposal   @relation(fields: [proposalId], references: [id], onDelete: Cascade, name: "ProposalToTickets")
+  segments          Segment[]  @relation("TicketToSegments")
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
   @@map("tickets")
 }
