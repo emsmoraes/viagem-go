@@ -153,10 +153,29 @@ model Ticket {
   type       TicketType
   proposalId String
   proposal   Proposal   @relation(fields: [proposalId], references: [id], onDelete: Cascade, name: "ProposalToTickets")
+  segments   Segment[]  @relation("TicketToSegments")
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
 
   @@map("tickets")
+}
+
+model Segment {
+  id           String    @id @default(uuid())
+  origin       String
+  destination  String
+  departure    DateTime?
+  arrival      DateTime?
+  flightNumber String?
+  airline      String?
+  class        String?
+  duration     String?
+  ticketId     String
+  ticket       Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade, name: "TicketToSegments")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("segments")
 }
 
 enum ProposalStatus {
