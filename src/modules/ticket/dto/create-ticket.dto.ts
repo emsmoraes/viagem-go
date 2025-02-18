@@ -1,5 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsEnum, IsInt, IsNumber, Min, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsEnum,
+  IsInt,
+  IsNumber,
+  Min,
+  IsOptional,
+  IsArray,
+} from 'class-validator';
+import { Transform } from 'class-transformer';
 
 enum TicketType {
   OUTBOUND,
@@ -38,6 +47,7 @@ export class CreateTicketDto {
   @IsOptional()
   @IsInt()
   @Min(0)
+  @Transform(({ value }) => value ? parseInt(value) : undefined)
   baggagePerPerson?: number;
 
   @ApiProperty({
@@ -48,15 +58,30 @@ export class CreateTicketDto {
   @IsOptional()
   @IsInt()
   @Min(0)
+  @Transform(({ value }) => value ? parseInt(value) : undefined)
   duration?: number;
 
   @ApiProperty({
-    example: 1500.50,
+    example: 1500.5,
     description: 'Valor do ticket',
     required: false,
   })
   @IsOptional()
   @IsNumber()
   @Min(0)
+  @Transform(({ value }) => value ? parseFloat(value) : undefined)
   price?: number;
+
+  @ApiProperty({
+    example: [
+      'https://viagem-go.s3.sa-east-1.amazonaws.com/tickets/123-abc.webp',
+      'https://viagem-go.s3.sa-east-1.amazonaws.com/tickets/456-def.webp',
+    ],
+    required: false,
+    description: 'Lista de URLs das imagens que devem ser mantidas',
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  imageUrls?: string[];
 }

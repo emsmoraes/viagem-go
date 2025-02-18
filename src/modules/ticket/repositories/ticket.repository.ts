@@ -2,18 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/database/prisma/prisma.service';
 import { CreateTicketDto } from '../dto/create-ticket.dto';
 import { UpdateTicketDto } from '../dto/update-ticket.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class TicketRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateTicketDto) {
+  async create(data: Prisma.TicketCreateInput) {
     return this.prisma.ticket.create({
-      data: {
-        name: data.name,
-        type: data.type as any,
-        proposalId: data.proposalId,
-      },
+      data,
       include: {
         proposal: true,
       },
@@ -41,20 +38,17 @@ export class TicketRepository {
     });
   }
 
-  async update(id: string, proposalId: string, data: UpdateTicketDto) {
+  async update(id: string, data: Prisma.TicketUpdateInput) {
     return this.prisma.ticket.update({
       where: { id },
-      data: {
-        name: data.name,
-        type: data.type as any,
-      },
+      data,
       include: {
         proposal: true,
       },
     });
   }
 
-  async remove(id: string, proposalId: string) {
+  async remove(id: string) {
     return this.prisma.ticket.delete({
       where: { id },
     });

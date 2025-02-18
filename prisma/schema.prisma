@@ -154,6 +154,7 @@ model Ticket {
   baggagePerPerson  Int?
   duration          Int?
   price             Decimal?   @db.Decimal(10, 2)
+  imageUrls         String[]
   proposalId        String
   proposal          Proposal   @relation(fields: [proposalId], references: [id], onDelete: Cascade, name: "ProposalToTickets")
   segments          Segment[]  @relation("TicketToSegments")
