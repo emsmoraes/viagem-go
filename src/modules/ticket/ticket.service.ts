@@ -23,7 +23,8 @@ export class TicketService {
 
   async create(
     createTicketDto: CreateTicketDto,
-    files?: Express.Multer.File[],
+    imageFiles?: Express.Multer.File[],
+    pdfFiles?: Express.Multer.File[],
   ) {
     const proposal = await this.prisma.proposal.findUnique({
       where: { id: createTicketDto.proposalId },
@@ -34,15 +35,29 @@ export class TicketService {
     }
 
     let imageUrls: string[] = [];
+    let pdfUrls: string[] = [];
 
-    if (files?.length) {
+    if (imageFiles?.length) {
       imageUrls = await Promise.all(
-        files.map(async (file) => {
+        imageFiles.map(async (file) => {
           const fileName = `${crypto.randomUUID()}.webp`;
           return this.awsService.post(
             fileName,
             file.buffer,
             this.envService.get('S3_TICKET_IMAGES_FOLDER_PATH'),
+          );
+        }),
+      );
+    }
+
+    if (pdfFiles?.length) {
+      pdfUrls = await Promise.all(
+        pdfFiles.map(async (file) => {
+          const fileName = `${crypto.randomUUID()}.pdf`;
+          return this.awsService.post(
+            fileName,
+            file.buffer,
+            this.envService.get('S3_TICKET_PDFS_FOLDER_PATH'),
           );
         }),
       );
@@ -58,6 +73,7 @@ export class TicketService {
       duration: createTicketDto.duration,
       price: createTicketDto.price,
       imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
+      pdfUrls: pdfUrls.length > 0 ? pdfUrls : undefined,
     };
 
     return await this.ticketRepository.create(ticketData);
@@ -77,43 +93,98 @@ export class TicketService {
     return ticket;
   }
 
+  private async processFiles<T extends 'image' | 'pdf'>(
+    id: string,
+    storedUrls: string[],
+    updatedUrls: string[],
+    newFiles: Express.Multer.File[] | undefined,
+    type: T,
+  ) {
+    const config = {
+      image: {
+        folder: this.envService.get('S3_TICKET_IMAGES_FOLDER_PATH'),
+        extension: 'webp',
+        maxFiles: 10,
+        errorMessage: 'Máximo de 10 imagens por ticket',
+      },
+      pdf: {
+        folder: this.envService.get('S3_TICKET_PDFS_FOLDER_PATH'),
+        extension: 'pdf',
+        maxFiles: 10,
+        errorMessage: 'Máximo de 10 PDFs por ticket',
+      },
+    };
+
+    const filesToDelete = storedUrls.filter(
+      (url) => !updatedUrls.includes(url),
+    );
+    await this.deleteFiles(filesToDelete, config[type].folder);
+
+    if (newFiles?.length) {
+      const totalFiles = updatedUrls.length + newFiles.length;
+      if (totalFiles > config[type].maxFiles) {
+        throw new BadRequestException(config[type].errorMessage);
+      }
+
+      const newUrls = await this.uploadFiles(
+        id,
+        newFiles,
+        config[type].folder,
+        config[type].extension,
+      );
+      updatedUrls.push(...newUrls);
+    }
+
+    return updatedUrls;
+  }
+
+  private async deleteFiles(urls: string[], folder: string) {
+    return Promise.all(
+      urls.map((url) => {
+        const fileName = extractFileName(url, folder);
+        return this.awsService.delete(fileName, folder);
+      }),
+    );
+  }
+
+  private async uploadFiles(
+    id: string,
+    files: Express.Multer.File[],
+    folder: string,
+    extension: string,
+  ) {
+    return Promise.all(
+      files.map(async (file) => {
+        const fileName = `${id}-${crypto.randomUUID()}.${extension}`;
+        return this.awsService.post(fileName, file.buffer, folder);
+      }),
+    );
+  }
+
   async update(
     id: string,
     proposalId: string,
     updateTicketDto: UpdateTicketDto,
-    files?: Express.Multer.File[],
+    imageFiles?: Express.Multer.File[],
+    pdfFiles?: Express.Multer.File[],
   ) {
     const ticket = await this.findOne(id, proposalId);
-    const s3Folder = this.envService.get('S3_TICKET_IMAGES_FOLDER_PATH');
 
-    const storedImages = ticket.imageUrls ?? [];
-    const updatedImages = updateTicketDto.imageUrls ?? [];
-
-    const imagesToDelete = storedImages.filter(
-      (img) => !updatedImages.includes(img),
+    const updatedImages = await this.processFiles(
+      id,
+      ticket.imageUrls ?? [],
+      updateTicketDto.imageUrls ?? [],
+      imageFiles,
+      'image',
     );
 
-    await Promise.all(
-      imagesToDelete.map((imageUrl) => {
-        const fileName = extractFileName(imageUrl, s3Folder);
-        return this.awsService.delete(fileName, s3Folder);
-      }),
+    const updatedPdfs = await this.processFiles(
+      id,
+      ticket.pdfUrls ?? [],
+      updateTicketDto.pdfUrls ?? [],
+      pdfFiles,
+      'pdf',
     );
-
-    if (files?.length) {
-      const totalImages = updatedImages.length + files.length;
-      if (totalImages > 10) {
-        throw new BadRequestException('Máximo de 10 imagens por ticket');
-      }
-
-      const newImageUrls = await Promise.all(
-        files.map(async (file) => {
-          const fileName = `${id}-${crypto.randomUUID()}.webp`;
-          return this.awsService.post(fileName, file.buffer, s3Folder);
-        }),
-      );
-      updatedImages.push(...newImageUrls);
-    }
 
     const ticketData: Prisma.TicketUpdateInput = {
       name: updateTicketDto.name,
@@ -121,7 +192,8 @@ export class TicketService {
       baggagePerPerson: updateTicketDto.baggagePerPerson,
       duration: updateTicketDto.duration,
       price: updateTicketDto.price,
-      imageUrls: updatedImages.length > 0 ? updatedImages : undefined
+      imageUrls: updatedImages,
+      pdfUrls: updatedPdfs,
     };
 
     return await this.ticketRepository.update(id, ticketData);
@@ -129,13 +201,23 @@ export class TicketService {
 
   async remove(id: string, proposalId: string) {
     const ticket = await this.findOne(id, proposalId);
-    const s3Folder = this.envService.get('S3_TICKET_IMAGES_FOLDER_PATH');
-    
+    const imagesFolder = this.envService.get('S3_TICKET_IMAGES_FOLDER_PATH');
+    const pdfsFolder = this.envService.get('S3_TICKET_PDFS_FOLDER_PATH');
+
     if (ticket.imageUrls?.length) {
       await Promise.all(
         ticket.imageUrls.map((imageUrl) => {
-          const fileName = extractFileName(imageUrl, s3Folder);
-          return this.awsService.delete(fileName, s3Folder);
+          const fileName = extractFileName(imageUrl, imagesFolder);
+          return this.awsService.delete(fileName, imagesFolder);
+        }),
+      );
+    }
+
+    if (ticket.pdfUrls?.length) {
+      await Promise.all(
+        ticket.pdfUrls.map((pdfUrl) => {
+          const fileName = extractFileName(pdfUrl, pdfsFolder);
+          return this.awsService.delete(fileName, pdfsFolder);
         }),
       );
     }

@@ -84,4 +84,16 @@ export class CreateTicketDto {
   @IsArray()
   @IsString({ each: true })
   imageUrls?: string[];
+
+  @ApiProperty({
+    example: [
+      'https://viagem-go.s3.sa-east-1.amazonaws.com/tickets/pdf/123-abc.pdf',
+    ],
+    required: false,
+    description: 'Lista de URLs dos PDFs que devem ser mantidos',
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  pdfUrls?: string[];
 }
