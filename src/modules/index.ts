@@ -1,3 +1,4 @@
+import { AccommodationModule } from './accommodation/accommodation.module';
 import { AuthModule } from './auth/auth.module';
 import { CustomerDocumentModule } from './customer-document/customer-document.module';
 import { CustomerModule } from './customer/customer.module';
@@ -31,4 +32,5 @@ export const featureModules = [
   PassengerModule,
   TicketModule,
   SegmentModule,
+  AccommodationModule,
 ];

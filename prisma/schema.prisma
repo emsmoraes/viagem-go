@@ -53,6 +53,7 @@ model Proposal {
   dayByDays     ProposalDayByDay[]    @relation("ProposalToDayByDays")
   passengers    Passenger[]           @relation("ProposalToPassengers")
   tickets       Ticket[]              @relation("ProposalToTickets")
+  accommodations Accommodation[]       @relation("ProposalToAccommodations")
 }
 
 model ProposalDestination {
@@ -181,6 +182,28 @@ model Segment {
   updatedAt    DateTime  @updatedAt
 
   @@map("segments")
+}
+
+model Accommodation {
+  id          String    @id @default(uuid())
+  name        String
+  location    String?
+  address     String?
+  checkIn     DateTime?
+  checkOut    DateTime?
+  category    String?
+  boardType   String?
+  roomType    String?
+  description String?
+  price       Decimal?  @db.Decimal(10, 2)
+  imageUrls   String[]
+  pdfUrls     String[]
+  proposalId  String
+  proposal    Proposal  @relation(fields: [proposalId], references: [id], onDelete: Cascade, name: "ProposalToAccommodations")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("accommodations")
 }
 
 enum ProposalStatus {
