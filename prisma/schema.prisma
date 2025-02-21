@@ -39,21 +39,22 @@ model UserKey {
 }
 
 model Proposal {
-  id            String                @id @default(uuid())
-  title         String
-  coverUrl      String?
-  status        ProposalStatus        @default(INCOMPLETE)
-  departureDate DateTime?
-  returnDate    DateTime?
-  userId        String
-  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt     DateTime              @default(now())
-  updatedAt     DateTime              @updatedAt
-  destinations  ProposalDestination[] @relation("ProposalToDestinations")
-  dayByDays     ProposalDayByDay[]    @relation("ProposalToDayByDays")
-  passengers    Passenger[]           @relation("ProposalToPassengers")
-  tickets       Ticket[]              @relation("ProposalToTickets")
+  id             String                @id @default(uuid())
+  title          String
+  coverUrl       String?
+  status         ProposalStatus        @default(INCOMPLETE)
+  departureDate  DateTime?
+  returnDate     DateTime?
+  userId         String
+  user           User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  destinations   ProposalDestination[] @relation("ProposalToDestinations")
+  dayByDays      ProposalDayByDay[]    @relation("ProposalToDayByDays")
+  passengers     Passenger[]           @relation("ProposalToPassengers")
+  tickets        Ticket[]              @relation("ProposalToTickets")
   accommodations Accommodation[]       @relation("ProposalToAccommodations")
+  cruises       Cruise[]              @relation("ProposalToCruises")
 }
 
 model ProposalDestination {
@@ -149,19 +150,19 @@ model Passenger {
 }
 
 model Ticket {
-  id                String     @id @default(uuid())
-  name              String
-  type              TicketType
-  baggagePerPerson  Int?
-  duration          Int?
-  price             Decimal?   @db.Decimal(10, 2)
-  imageUrls         String[]
-  pdfUrls           String[]
-  proposalId        String
-  proposal          Proposal   @relation(fields: [proposalId], references: [id], onDelete: Cascade, name: "ProposalToTickets")
-  segments          Segment[]  @relation("TicketToSegments")
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+  id               String     @id @default(uuid())
+  name             String
+  type             TicketType
+  baggagePerPerson Int?
+  duration         Int?
+  price            Decimal?   @db.Decimal(10, 2)
+  imageUrls        String[]
+  pdfUrls          String[]
+  proposalId       String
+  proposal         Proposal   @relation(fields: [proposalId], references: [id], onDelete: Cascade, name: "ProposalToTickets")
+  segments         Segment[]  @relation("TicketToSegments")
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 
   @@map("tickets")
 }
@@ -204,6 +205,25 @@ model Accommodation {
   updatedAt   DateTime  @updatedAt
 
   @@map("accommodations")
+}
+
+model Cruise {
+  id             String    @id @default(uuid())
+  name           String
+  cabin          String?
+  checkIn        DateTime?
+  checkOut       DateTime?
+  route          String?
+  description    String?
+  paymentMethods String?
+  imageUrls      String[]
+  pdfUrls        String[]
+  proposalId     String
+  proposal       Proposal  @relation(fields: [proposalId], references: [id], onDelete: Cascade, name: "ProposalToCruises")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@map("cruises")
 }
 
 enum ProposalStatus {

@@ -1,5 +1,6 @@
 import { AccommodationModule } from './accommodation/accommodation.module';
 import { AuthModule } from './auth/auth.module';
+import { CruiseModule } from './cruise/cruise.module';
 import { CustomerDocumentModule } from './customer-document/customer-document.module';
 import { CustomerModule } from './customer/customer.module';
 import { CustomerService } from './customer/customer.service';
@@ -33,4 +34,5 @@ export const featureModules = [
   TicketModule,
   SegmentModule,
   AccommodationModule,
+  CruiseModule,
 ];
