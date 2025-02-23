@@ -12,6 +12,7 @@ import { ProposalDestinationModule } from './proposal-destination/proposal-desti
 import { ProposalModule } from './proposal/proposal.module';
 import { SegmentModule } from './segment/segment.module';
 import { TicketModule } from './ticket/ticket.module';
+import { TransportModule } from './transport/transport.module';
 import { UserAvatarModule } from './user-avatar/user-avatar.module';
 import { UserForgotPasswordModule } from './user-forgot-password/user-forgot-password.module';
 import { UserProfileModule } from './user-profile/user-profile.module';
@@ -35,4 +36,5 @@ export const featureModules = [
   SegmentModule,
   AccommodationModule,
   CruiseModule,
+  TransportModule,
 ];
