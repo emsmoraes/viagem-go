@@ -18,6 +18,8 @@ export const envSchema = z.object({
     S3_TRANSPORT_PDFS_FOLDER_PATH: z.coerce.string(),
     S3_EXPERIENCE_IMAGES_FOLDER_PATH: z.coerce.string(),
     S3_EXPERIENCE_PDFS_FOLDER_PATH: z.coerce.string(),
+    S3_INSURANCE_IMAGES_FOLDER_PATH: z.coerce.string(),
+    S3_INSURANCE_PDFS_FOLDER_PATH: z.coerce.string(),
 })
 
 export type Env = z.infer<typeof envSchema>
