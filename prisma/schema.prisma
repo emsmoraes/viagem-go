@@ -58,6 +58,7 @@ model Proposal {
   transports     Transport[]           @relation("ProposalToTransports")
   experiences    Experience[]          @relation("ProposalToExperiences")
   insurances     Insurance[]           @relation("ProposalToInsurances")
+  extras         Extra[]               @relation("ProposalToExtras")
 }
 
 model ProposalDestination {
@@ -272,6 +273,21 @@ model Insurance {
   updatedAt   DateTime @updatedAt
 
   @@map("insurances")
+}
+
+model Extra {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  price       Decimal? @db.Decimal(10, 2)
+  imageUrls   String[]
+  pdfUrls     String[]
+  proposalId  String
+  proposal    Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade, name: "ProposalToExtras")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("extras")
 }
 
 enum ProposalStatus {

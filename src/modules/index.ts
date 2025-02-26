@@ -6,6 +6,7 @@ import { CustomerModule } from './customer/customer.module';
 import { CustomerService } from './customer/customer.service';
 import { EnvModule } from './env/env.module';
 import { ExperienceModule } from './experience/experience.module';
+import { ExtraModule } from './extra/extra.module';
 import { InsuranceModule } from './insurance/insurance.module';
 import { KeyModule } from './key/key.module';
 import { PassengerModule } from './passenger/passenger.module';
@@ -41,4 +42,5 @@ export const featureModules = [
   TransportModule,
   ExperienceModule,
   InsuranceModule,
+  ExtraModule,
 ];
