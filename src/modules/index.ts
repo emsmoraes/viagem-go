@@ -14,6 +14,7 @@ import { ProposalDayBayDayModule } from './proposal-day-by-day/proposal-day-by-d
 import { ProposalDestinationModule } from './proposal-destination/proposal-destination.module';
 import { ProposalModule } from './proposal/proposal.module';
 import { SegmentModule } from './segment/segment.module';
+import { SummaryModule } from './summary/summary.module';
 import { TicketModule } from './ticket/ticket.module';
 import { TransportModule } from './transport/transport.module';
 import { UserAvatarModule } from './user-avatar/user-avatar.module';
@@ -43,4 +44,5 @@ export const featureModules = [
   ExperienceModule,
   InsuranceModule,
   ExtraModule,
+  SummaryModule,
 ];
