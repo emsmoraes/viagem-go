@@ -9,10 +9,18 @@ import * as bcrypt from 'bcrypt';
 export class UserRegisterRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateUserDto) {
+  async create(data: Prisma.UserCreateInput, agencyId?: string) {
     try {
       const validUserData: Prisma.UserCreateInput = {
         email: data.email,
+        type: data.type,
+        ...(agencyId && {
+          agency: {
+            connect: {
+              id: agencyId,
+            },
+          },
+        }),
       };
 
       const createdUser = await this.prisma.user.create({

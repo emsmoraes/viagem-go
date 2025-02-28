@@ -25,9 +25,7 @@ export class UserAvatarService {
     await this.userAvatarRepository.updateUserAvatar({ userId, avatarUrl });
 
     return {
-      message: 'Avatar atualizado com sucesso!',
-      fileName: file.filename,
-      path: file.path,
+      avatarUrl: avatarUrl,
     };
   }
 

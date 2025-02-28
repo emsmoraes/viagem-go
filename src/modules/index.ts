@@ -17,6 +17,8 @@ import { SegmentModule } from './segment/segment.module';
 import { SummaryModule } from './summary/summary.module';
 import { TicketModule } from './ticket/ticket.module';
 import { TransportModule } from './transport/transport.module';
+import { AgencyLogoModule } from './user-agency-avatar/user-agency-avatar.module';
+import { AgencyModule } from './user-agency/user-agency.module';
 import { UserAvatarModule } from './user-avatar/user-avatar.module';
 import { UserForgotPasswordModule } from './user-forgot-password/user-forgot-password.module';
 import { UserProfileModule } from './user-profile/user-profile.module';
@@ -45,4 +47,6 @@ export const featureModules = [
   InsuranceModule,
   ExtraModule,
   SummaryModule,
+  AgencyModule,
+  AgencyLogoModule,
 ];

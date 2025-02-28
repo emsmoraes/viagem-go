@@ -110,7 +110,7 @@ export class CustomerDocumentService {
     );
   }
 
-  async remove(id: string) {
+  async remove(id: string) { 
     const existingDocument = await this.customerDocumentRepository.findOne(id);
 
     if (!existingDocument) {
@@ -131,5 +131,5 @@ export class CustomerDocumentService {
     );
 
     return this.customerDocumentRepository.remove(id);
-  }
+  } 
 }

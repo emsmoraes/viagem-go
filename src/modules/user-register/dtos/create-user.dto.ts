@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsUrl } from "class-validator";
+import { IsString, IsEmail, IsUrl, IsOptional, IsUUID } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateUserDto {
@@ -9,4 +9,9 @@ export class CreateUserDto {
     @ApiProperty({ example: "https://viagens-go.com" })
     @IsUrl()
     redirectUrl: string;
+
+    @ApiProperty({ example: "123e4567-e89b-12d3-a456-426614174000", required: false })
+    @IsOptional()
+    @IsUUID()
+    agencyId?: string;
 }
