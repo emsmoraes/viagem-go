@@ -39,6 +39,7 @@ export class UserForgotPasswordService {
       });
     } catch (e) {
       console.log(e);
+      throw e
     }
   }
 

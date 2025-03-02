@@ -7,6 +7,6 @@ export class CreateUserForgotPasswordDto {
   email: string;
 
   @ApiProperty({ example: 'https://viagens-go.com' })
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   redirectUrl: string;
 }
