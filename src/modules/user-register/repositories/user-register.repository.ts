@@ -47,6 +47,20 @@ export class UserRegisterRepository {
     return user;
   }
 
+  async findById(userId: string) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    return user;
+  }
+
   async UpdateByKey(key: string, userData: UpdateUserDto) {
     const userKey = await this.prisma.userKey.findUnique({
       where: {
@@ -79,6 +93,23 @@ export class UserRegisterRepository {
       });
     } catch (e) {
       console.log(e);
+    }
+  }
+
+  async deleteById(userId: string) {
+    try {
+      await this.prisma.userKey.deleteMany({
+        where: { userId: userId },
+      });
+
+      const deletedUser = await this.prisma.user.delete({
+        where: { id: userId },
+      });
+
+      return deletedUser;
+    } catch (e) {
+      console.log(e);
+      throw new NotFoundException('Erro ao excluir o usuário');
     }
   }
 }

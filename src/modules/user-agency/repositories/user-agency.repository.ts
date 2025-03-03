@@ -46,4 +46,17 @@ export class AgencyRepository {
       },
     });
   }
+
+  async delete(agencyId: string) {
+    try {
+      const deletedAgency = await this.prisma.agency.delete({
+        where: { id: agencyId },
+      });
+
+      return deletedAgency;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error deleting agency');
+    }
+  }
 }
