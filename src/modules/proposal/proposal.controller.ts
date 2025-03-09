@@ -11,6 +11,7 @@ import {
   UseInterceptors,
   BadRequestException,
   UploadedFile,
+  Query,
 } from '@nestjs/common';
 import { ProposalService } from './proposal.service';
 import { CreateProposalDto } from './dto/create-proposal.dto';
@@ -35,9 +36,14 @@ export class ProposalController {
   }
 
   @Get()
-  findAll(@Request() req) {
+  async findAll(
+    @Request() req,
+    @Query('search') search: string = '',
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
     const userId = req.user.userId;
-    return this.proposalService.findAll(userId);
+    return this.proposalService.findAll(userId, { search, page, limit });
   }
 
   @Get(':id')

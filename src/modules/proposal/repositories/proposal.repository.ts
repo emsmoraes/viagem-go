@@ -15,12 +15,52 @@ export class ProposalRepository {
     });
   }
 
-  async findAll({ userId }: { userId: string }) {
-    return await this.prisma.proposal.findMany({
+  async findAll({
+    userId,
+    search = '',
+    page = 1,
+    limit = 10,
+  }: {
+    userId: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+  }) {
+    const offset = (page - 1) * limit;
+
+    const searchCondition = search
+      ? {
+          title: {
+            contains: search,
+            mode: 'insensitive' as 'insensitive',
+          },
+        }
+      : {};
+
+    const totalItems = await this.prisma.proposal.count({
       where: {
         userId,
+        ...searchCondition,
       },
     });
+
+    const proposals = await this.prisma.proposal.findMany({
+      where: {
+        userId,
+        ...searchCondition,
+      },
+      skip: offset,
+      take: limit,
+    });
+
+    const totalPages = Math.ceil(totalItems / limit);
+
+    return {
+      proposals,
+      currentPage: page,
+      totalPages,
+      totalItems,
+    };
   }
 
   async findOne({

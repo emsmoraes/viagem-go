@@ -17,8 +17,11 @@ export class ProposalService {
     return this.proposalRepository.create({ title: data.title, userId });
   }
 
-  findAll(userId: string) {
-    return this.proposalRepository.findAll({ userId });
+  async findAll(
+    userId: string,
+    { search, page, limit }: { search: string; page: number; limit: number },
+  ) {
+    return this.proposalRepository.findAll({ userId, search, page, limit });
   }
 
   async findOne(proposalId: string, userId: string) {
