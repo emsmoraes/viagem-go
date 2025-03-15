@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-
+import { json } from 'express';
 import { EnvService } from './modules/env/env.service';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
@@ -32,6 +32,16 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+    }),
+  );
+
+  app.use(
+    json({
+      verify: (req: any, res, buf) => {
+        if (req.headers['stripe-signature']) {
+          req.rawBody = buf;
+        }
+      },
     }),
   );
 

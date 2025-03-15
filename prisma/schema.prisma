@@ -53,10 +53,34 @@ model Agency {
   description  String?
   users        User[]
 
+  subscription Subscription?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("agencies")
+}
+
+model Subscription {
+  id       String @id @default(uuid())
+  agencyId String @unique
+  agency   Agency @relation(fields: [agencyId], references: [id])
+
+  stripeSessionId      String  @unique
+  stripeCustomerId     String? @unique
+  stripeSubscriptionId String? @unique
+
+  amountTotal   Int
+  currency      String
+  paymentStatus String
+  status        String
+  expiresAt     DateTime
+  planType      PlanType
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("subscriptions")
 }
 
 model Proposal {
@@ -341,4 +365,9 @@ enum TicketType {
 enum UserType {
   AGENCY_ADMIN
   AGENCY_EMPLOYEE
+}
+
+enum PlanType {
+  INDIVIDUAL
+  AGENCY
 }

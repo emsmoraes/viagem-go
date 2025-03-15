@@ -4,6 +4,7 @@ import { envSchema } from './modules/env/env';
 import { PrismaModule } from './shared/database/prisma.module';
 import { featureModules } from './modules';
 import { MailerModule } from './modules/mailer/mailer.module';
+import { StripeModule } from './integrations/stripe/stripe.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { MailerModule } from './modules/mailer/mailer.module';
     ConfigModule.forRoot({ isGlobal: true }),
     ...featureModules,
     MailerModule,
+    StripeModule,
   ],
   controllers: [],
   providers: [],
