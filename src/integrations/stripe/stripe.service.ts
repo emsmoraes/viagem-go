@@ -49,7 +49,7 @@ export class StripeService {
         expiresAt: session.expires_at
           ? new Date(session.expires_at * 1000)
           : new Date(),
-          planType: dto.planType
+        planType: dto.planType,
       },
       create: {
         agencyId: agency.id,
@@ -61,7 +61,7 @@ export class StripeService {
         expiresAt: session.expires_at
           ? new Date(session.expires_at * 1000)
           : new Date(),
-          planType: dto.planType
+        planType: dto.planType,
       },
     });
 
@@ -105,11 +105,10 @@ export class StripeService {
 
   async handleCheckoutSuccess(session: Stripe.Checkout.Session) {
     if (!session.id || !session.subscription || !session.customer) return;
+   
 
     await this.prisma.subscription.update({
-      where: {
-        stripeSessionId: session.id,
-      },
+      where: { stripeSessionId: session.id },
       data: {
         stripeCustomerId: session.customer.toString(),
         stripeSubscriptionId: session.subscription.toString(),
@@ -118,6 +117,7 @@ export class StripeService {
         paymentStatus: session.payment_status,
         status: 'active',
         expiresAt: new Date(session.expires_at * 1000),
+        isTrial: false,
       },
     });
   }

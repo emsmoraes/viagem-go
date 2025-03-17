@@ -8,6 +8,7 @@ import { UserKeyRepository } from '../key/repositories/key.repository';
 import { PrismaService } from 'src/shared/database/prisma/prisma.service';
 import { AgencyRepository } from '../user-agency/repositories/user-agency.repository';
 import { UserType } from '@prisma/client';
+import { addDays } from 'date-fns';
 
 @Injectable()
 export class UserService {
@@ -52,7 +53,19 @@ export class UserService {
       if (!validAgency) {
         const createdAgency = await this.agencyRepository.create({
           name: `${createdUser.email} agency`,
+          subscription: {
+            create: {
+              isTrial: true,
+              planType: 'AGENCY',
+              amountTotal: 0,
+              currency: 'BRL',
+              paymentStatus: 'trialing',
+              status: 'active',
+              expiresAt: addDays(new Date(), 7),
+            },
+          },
         });
+
         await this.prisma.user.update({
           where: { id: createdUser.id },
           data: { agencyId: createdAgency.id },
