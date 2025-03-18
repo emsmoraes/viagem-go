@@ -105,7 +105,10 @@ export class StripeService {
 
   async handleCheckoutSuccess(session: Stripe.Checkout.Session) {
     if (!session.id || !session.subscription || !session.customer) return;
-   
+
+    const subscription = await this.stripe.subscriptions.retrieve(
+      session.subscription.toString(),
+    );
 
     await this.prisma.subscription.update({
       where: { stripeSessionId: session.id },
@@ -116,7 +119,7 @@ export class StripeService {
         currency: session.currency,
         paymentStatus: session.payment_status,
         status: 'active',
-        expiresAt: new Date(session.expires_at * 1000),
+        expiresAt: new Date(subscription.current_period_end * 1000),
         isTrial: false,
       },
     });
