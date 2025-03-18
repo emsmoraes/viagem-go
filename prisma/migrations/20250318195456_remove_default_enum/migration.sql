@@ -1,0 +1,5 @@
+-- AlterEnum
+ALTER TYPE "UserType" ADD VALUE 'AGENCY_OWNER';
+
+-- AlterTable
+ALTER TABLE "users" ALTER COLUMN "type" DROP DEFAULT;

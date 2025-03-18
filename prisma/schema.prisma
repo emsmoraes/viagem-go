@@ -18,7 +18,7 @@ model User {
   password                        String?
   createdAt                       DateTime @default(now())
   updatedAt                       DateTime @updatedAt
-  type                            UserType @default(AGENCY_ADMIN)
+  type                            UserType @default(AGENCY_OWNER)
 
   userKeys UserKey[]
   Proposal Proposal[]
@@ -62,9 +62,9 @@ model Agency {
 }
 
 model Subscription {
-  id       String  @id @default(uuid())
-  agencyId String  @unique
-  agency   Agency  @relation(fields: [agencyId], references: [id])
+  id       String @id @default(uuid())
+  agencyId String @unique
+  agency   Agency @relation(fields: [agencyId], references: [id])
 
   stripeSessionId      String? @unique
   stripeCustomerId     String? @unique
@@ -364,6 +364,7 @@ enum TicketType {
 }
 
 enum UserType {
+  AGENCY_OWNER
   AGENCY_ADMIN
   AGENCY_EMPLOYEE
 }

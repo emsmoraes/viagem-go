@@ -2,7 +2,6 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserRegisterRepository } from './repositories/user-register.repository';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
-import { validateOrReject } from 'class-validator';
 import { MailerService } from '@nestjs-modules/mailer';
 import { UserKeyRepository } from '../key/repositories/key.repository';
 import { PrismaService } from 'src/shared/database/prisma/prisma.service';
@@ -28,7 +27,7 @@ export class UserService {
 
       const userData = {
         email: data.email,
-        type: validAgency ? UserType.AGENCY_EMPLOYEE : UserType.AGENCY_ADMIN,
+        type: validAgency ? UserType.AGENCY_EMPLOYEE : UserType.AGENCY_OWNER,
       };
 
       const createdUser = await this.userRegisterRepository.create(
@@ -56,7 +55,7 @@ export class UserService {
           subscription: {
             create: {
               isTrial: true,
-              planType: 'AGENCY',
+              planType: 'INDIVIDUAL',
               amountTotal: 0,
               currency: 'BRL',
               paymentStatus: 'trialing',
@@ -95,7 +94,7 @@ export class UserService {
         throw new BadRequestException('User not found');
       }
 
-      if (user.agencyId && user.type === 'AGENCY_ADMIN') {
+      if (user.agencyId && user.type === 'AGENCY_OWNER') {
         await this.agencyRepository.delete(user.agencyId);
       }
 
