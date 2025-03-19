@@ -23,6 +23,7 @@ import { UserAvatarModule } from './user-avatar/user-avatar.module';
 import { UserForgotPasswordModule } from './user-forgot-password/user-forgot-password.module';
 import { UserProfileModule } from './user-profile/user-profile.module';
 import { UserRegisterModule } from './user-register/user-register.module';
+import { UserRoleModule } from './user-role/user-role.module';
 
 export const featureModules = [
   UserRegisterModule,
@@ -49,4 +50,5 @@ export const featureModules = [
   SummaryModule,
   AgencyModule,
   AgencyLogoModule,
+  UserRoleModule,
 ];

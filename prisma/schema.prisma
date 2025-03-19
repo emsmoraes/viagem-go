@@ -18,7 +18,8 @@ model User {
   password                        String?
   createdAt                       DateTime @default(now())
   updatedAt                       DateTime @updatedAt
-  type                            UserType @default(AGENCY_OWNER)
+
+  userRoles UserRole[]
 
   userKeys UserKey[]
   Proposal Proposal[]
@@ -27,6 +28,21 @@ model User {
   agency   Agency?    @relation(fields: [agencyId], references: [id])
 
   @@map("users")
+}
+
+model UserRole {
+  id       String    @id @default(uuid())
+  role     UserRoles @default(OWNER)
+  userId   String
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agencyId String?
+  agency   Agency?   @relation(fields: [agencyId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, agencyId])
+  @@map("user_roles")
 }
 
 model UserKey {
@@ -55,8 +71,9 @@ model Agency {
 
   subscription Subscription?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  UserRole  UserRole[]
 
   @@map("agencies")
 }
@@ -363,10 +380,10 @@ enum TicketType {
   INTERNAL
 }
 
-enum UserType {
-  AGENCY_OWNER
-  AGENCY_ADMIN
-  AGENCY_EMPLOYEE
+enum UserRoles {
+  OWNER
+  ADMIN
+  EMPLOYEE
 }
 
 enum PlanType {

@@ -1,5 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserDto } from '../dtos/create-user.dto';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateUserDto } from '../dtos/update-user.dto';
 import { PrismaService } from 'src/shared/database/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
@@ -9,11 +8,10 @@ import * as bcrypt from 'bcrypt';
 export class UserRegisterRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: Prisma.UserCreateInput, agencyId?: string) {
+  async create(userEmail: string, agencyId?: string) {
     try {
       const validUserData: Prisma.UserCreateInput = {
-        email: data.email,
-        type: data.type,
+        email: userEmail,
         ...(agencyId && {
           agency: {
             connect: {
@@ -70,6 +68,10 @@ export class UserRegisterRepository {
         user: true,
       },
     });
+
+    if(!userKey) {
+      throw new BadRequestException('Chave não encontrada');
+    }
 
     try {
       const hashedPassword = userData.password

@@ -6,8 +6,9 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { UserKeyRepository } from '../key/repositories/key.repository';
 import { PrismaService } from 'src/shared/database/prisma/prisma.service';
 import { AgencyRepository } from '../user-agency/repositories/user-agency.repository';
-import { UserType } from '@prisma/client';
+import { UserRoles } from '@prisma/client';
 import { addDays } from 'date-fns';
+import { UserRoleRepository } from '../user-role/repositories/user-role.repository';
 
 @Injectable()
 export class UserService {
@@ -17,6 +18,7 @@ export class UserService {
     private readonly mailerService: MailerService,
     private readonly prisma: PrismaService,
     private readonly agencyRepository: AgencyRepository,
+    private readonly userRoleRepository: UserRoleRepository,
   ) {}
 
   async create(data: CreateUserDto) {
@@ -25,13 +27,8 @@ export class UserService {
         ? await this.agencyRepository.findById(data.agencyId)
         : null;
 
-      const userData = {
-        email: data.email,
-        type: validAgency ? UserType.AGENCY_EMPLOYEE : UserType.AGENCY_OWNER,
-      };
-
       const createdUser = await this.userRegisterRepository.create(
-        userData,
+        data.email,
         validAgency ? data.agencyId : null,
       );
 
@@ -49,6 +46,8 @@ export class UserService {
         context: { redirectUrl: link },
       });
 
+      let agencyId = data.agencyId;
+
       if (!validAgency) {
         const createdAgency = await this.agencyRepository.create({
           name: `${createdUser.email} agency`,
@@ -65,11 +64,19 @@ export class UserService {
           },
         });
 
+        agencyId = createdAgency.id;
+
         await this.prisma.user.update({
           where: { id: createdUser.id },
-          data: { agencyId: createdAgency.id },
+          data: { agencyId },
         });
       }
+
+      await this.userRoleRepository.assignRole(
+        createdUser.id,
+        agencyId,
+        validAgency ? UserRoles.EMPLOYEE : UserRoles.OWNER,
+      );
 
       return createdUser;
     } catch (error) {
@@ -81,8 +88,8 @@ export class UserService {
   async update(key: string, data: UpdateUserDto) {
     try {
       this.userRegisterRepository.UpdateByKey(key, data);
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -94,7 +101,12 @@ export class UserService {
         throw new BadRequestException('User not found');
       }
 
-      if (user.agencyId && user.type === 'AGENCY_OWNER') {
+      await this.userRoleRepository.deleteByUserId(userId);
+
+      const userRoles = await this.userRoleRepository.findByUserId(userId);
+      const isOwner = userRoles.some((role) => role.role === UserRoles.OWNER);
+
+      if (isOwner && user.agencyId) {
         await this.agencyRepository.delete(user.agencyId);
       }
 
