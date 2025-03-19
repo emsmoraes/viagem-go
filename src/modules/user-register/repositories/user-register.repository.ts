@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UpdateUserDto } from '../dtos/update-user.dto';
 import { PrismaService } from 'src/shared/database/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
@@ -32,7 +36,7 @@ export class UserRegisterRepository {
   }
 
   async findByEmail(userEmail: string) {
-    const user = await this.prisma.user.findFirst({
+    const user = await this.prisma.user.findUnique({
       where: {
         email: userEmail,
       },
@@ -69,7 +73,7 @@ export class UserRegisterRepository {
       },
     });
 
-    if(!userKey) {
+    if (!userKey) {
       throw new BadRequestException('Chave não encontrada');
     }
 
