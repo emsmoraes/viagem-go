@@ -18,7 +18,7 @@ export class UserProfileRepository {
     }
 
     try {
-      await this.prisma.user.update({
+      return await this.prisma.user.update({
         where: { id: id },
         data: data,
       });
