@@ -22,7 +22,6 @@ export class AgencyRepository {
   }
 
   async findByUserId(userId: string) {
-    console.log(userId);
     return this.prisma.agency.findFirst({
       where: {
         users: {
@@ -32,7 +31,11 @@ export class AgencyRepository {
         },
       },
       include: {
-        users: true,
+        users: {
+          omit: {
+            password: true,
+          },
+        },
       },
     });
   }
@@ -42,7 +45,11 @@ export class AgencyRepository {
       where: { id: agencyId },
       data,
       include: {
-        users: true,
+        users: {
+          omit: {
+            password: true,
+          },
+        },
       },
     });
   }
