@@ -16,6 +16,7 @@ import { fileFilter } from '../../shared/helpers/images-filter';
 import { ApiTags } from '@nestjs/swagger';
 import { AgencyLogoService } from './user-agency-avatar.service';
 import { AgencyService } from '../user-agency/user-agency.service';
+import { AgencyLogoRepository } from './repositories/user-agency-avatar.repository';
 
 const storage = multer.memoryStorage();
 
@@ -25,6 +26,7 @@ export class AgencyLogoController {
   constructor(
     private readonly agencyLogoService: AgencyLogoService,
     private readonly agencyService: AgencyService,
+    private readonly agencyLogoRepository: AgencyLogoRepository,
   ) {}
 
   @UseGuards(AuthGuard)
@@ -41,8 +43,8 @@ export class AgencyLogoController {
       throw new BadRequestException('Arquivo não enviado ou inválido.');
     }
 
-    const userId = req.user.id;
-    const agency = await this.agencyService.findByUserId(userId);
+    const userId = req.user.userId;
+    const agency = await this.agencyLogoRepository.findAgencyByUserId(userId);
 
     if (!agency) {
       throw new BadRequestException('Agência não encontrada.');

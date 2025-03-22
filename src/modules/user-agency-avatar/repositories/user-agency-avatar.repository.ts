@@ -5,6 +5,19 @@ import { PrismaService } from 'src/shared/database/prisma/prisma.service';
 export class AgencyLogoRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  async findAgencyByUserId(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { agency: true },
+    });
+  
+    if (!user || !user.agency) {
+      throw new Error("Usuário ou agência não encontrada.");
+    }
+  
+    return user.agency;
+  }
+
   async updateAgencyLogo({
     agencyId,
     logoUrl,

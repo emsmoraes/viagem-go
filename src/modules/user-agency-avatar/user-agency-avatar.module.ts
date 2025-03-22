@@ -10,6 +10,14 @@ import { AgencyRepository } from '../user-agency/repositories/user-agency.reposi
 
 @Module({
   controllers: [AgencyLogoController],
-  providers: [AgencyLogoService, PrismaService, AwsService, AgencyLogoRepository, EnvService, AgencyService, AgencyRepository],
+  providers: [
+    AgencyLogoService,
+    PrismaService,
+    AwsService,
+    AgencyLogoRepository,
+    EnvService,
+    AgencyService,
+    AgencyRepository,
+  ],
 })
 export class AgencyLogoModule {}

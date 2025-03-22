@@ -23,7 +23,7 @@ export class CreateAgencyDto {
 
   @ApiProperty({ example: 'https://www.agenciaxyz.com.br', description: 'Site da agência', required: false })
   @IsOptional()
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   website?: string;
 
   @ApiProperty({ example: '@agenciaxyz', description: 'Instagram da agência', required: false })
@@ -33,7 +33,7 @@ export class CreateAgencyDto {
 
   @ApiProperty({ example: 'https://goo.gl/maps/abc123def456', description: 'Link para localização da agência', required: false })
   @IsOptional()
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   locationLink?: string;
 
   @ApiProperty({ example: 'Agência especializada em viagens personalizadas...', description: 'Descrição da agência', required: false })
