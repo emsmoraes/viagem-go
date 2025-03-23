@@ -35,6 +35,9 @@ export class AgencyRepository {
           omit: {
             password: true,
           },
+          include: {
+            userRoles: true,
+          },
         },
       },
     });
@@ -44,13 +47,6 @@ export class AgencyRepository {
     return this.prisma.agency.update({
       where: { id: agencyId },
       data,
-      include: {
-        users: {
-          omit: {
-            password: true,
-          },
-        },
-      },
     });
   }
 

@@ -50,7 +50,7 @@ export class UserService {
 
       if (!validAgency) {
         const createdAgency = await this.agencyRepository.create({
-          name: `${createdUser.email} agency`,
+          name: `${createdUser.email} - Agência`,
           subscription: {
             create: {
               isTrial: true,

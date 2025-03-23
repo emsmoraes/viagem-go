@@ -16,6 +16,7 @@ export class UserRegisterRepository {
     try {
       const validUserData: Prisma.UserCreateInput = {
         email: userEmail,
+        active: false,
         ...(agencyId && {
           agency: {
             connect: {
@@ -85,6 +86,7 @@ export class UserRegisterRepository {
       const validUserData: Prisma.UserUpdateInput = {
         name: userData.name,
         password: hashedPassword,
+        active: true,
       };
 
       return await this.prisma.$transaction(async (prisma) => {

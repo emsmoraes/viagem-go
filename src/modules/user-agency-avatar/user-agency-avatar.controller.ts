@@ -58,7 +58,7 @@ export class AgencyLogoController {
   @UseGuards(AuthGuard)
   @Delete()
   async remove(@Request() req) {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const agency = await this.agencyService.findByUserId(userId);
 
     if (!agency) {

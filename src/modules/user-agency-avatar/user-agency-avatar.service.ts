@@ -14,7 +14,10 @@ export class AgencyLogoService {
   async update(agencyId: string, file: Express.Multer.File) {
     const fileName = `${agencyId}.webp`;
 
-    await this.awsService.delete(fileName, this.envService.get('S3_AGENCY_LOGOS_FOLDER_PATH'));
+    await this.awsService.delete(
+      fileName,
+      this.envService.get('S3_AGENCY_LOGOS_FOLDER_PATH'),
+    );
     const logoUrl = await this.awsService.post(
       fileName,
       file.buffer,
@@ -30,7 +33,10 @@ export class AgencyLogoService {
 
   async remove(agencyId: string) {
     const fileName = `${agencyId}.webp`;
-    await this.awsService.delete(fileName, this.envService.get('S3_AGENCY_LOGOS_FOLDER_PATH'));
+    await this.awsService.delete(
+      fileName,
+      this.envService.get('S3_AGENCY_LOGOS_FOLDER_PATH'),
+    );
     await this.agencyLogoRepository.deleteAgencyLogo(agencyId);
     return {
       message: 'Logo da agência removida com sucesso!',
