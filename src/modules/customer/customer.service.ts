@@ -49,8 +49,11 @@ export class CustomerService {
     return;
   }
 
-  async findAll(userId: string) {
-    return await this.customerRepository.findAll(userId);
+  async findAll(
+    userId: string,
+    { search, page, limit }: { search: string; page: number; limit: number },
+  ) {
+    return this.customerRepository.findAll({ userId, search, page, limit });
   }
 
   async findOne(id: string, userId: string) {

@@ -16,10 +16,52 @@ export class CustomerRepository {
     });
   }
 
-  async findAll(userId: string) {
-    return this.prisma.customer.findMany({
-      where: { userId },
+  async findAll({
+    userId,
+    search = '',
+    page = 1,
+    limit = 10,
+  }: {
+    userId: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+  }) {
+    const offset = (page - 1) * limit;
+
+    const searchCondition = search
+      ? {
+          name: {
+            contains: search,
+            mode: 'insensitive' as 'insensitive',
+          },
+        }
+      : {};
+
+    const totalItems = await this.prisma.customer.count({
+      where: {
+        userId,
+        ...searchCondition,
+      },
     });
+
+    const customers = await this.prisma.customer.findMany({
+      where: {
+        userId,
+        ...searchCondition,
+      },
+      skip: offset,
+      take: limit,
+    });
+
+    const totalPages = Math.ceil(totalItems / limit);
+
+    return {
+      customers,
+      currentPage: page,
+      totalPages,
+      totalItems,
+    };
   }
 
   async findOne(id: string, userId: string) {

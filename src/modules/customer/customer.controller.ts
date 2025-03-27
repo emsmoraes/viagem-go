@@ -10,6 +10,7 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  Query,
 } from '@nestjs/common';
 import { CustomerService } from './customer.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
@@ -51,9 +52,14 @@ export class CustomerController {
   }
 
   @Get()
-  findAll(@Request() req) {
+  async findAll(
+    @Request() req,
+    @Query('search') search: string = '',
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
     const userId = req.user.userId;
-    return this.customerService.findAll(userId);
+    return this.customerService.findAll(userId, { search, page, limit });
   }
 
   @Get(':id')
