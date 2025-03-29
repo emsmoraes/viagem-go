@@ -31,7 +31,7 @@ export class ProposalDestinationController {
 
   @UseGuards(AuthGuard)
   @UseInterceptors(
-    FilesInterceptor('images', 10, {
+    FilesInterceptor('images', 5, {
       storage,
       fileFilter,
       limits: { fileSize: 5 * 1024 * 1024 },
@@ -104,6 +104,6 @@ export class ProposalDestinationController {
   async remove(@Param('id') id: string, @Request() req) {
     const userId = req.user.userId;
 
-    this.proposalDestinationService.remove(id, userId);
+    return this.proposalDestinationService.remove(id, userId);
   }
 }

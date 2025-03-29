@@ -49,8 +49,6 @@ export class ProposalDestinationService {
       );
     }
 
-    console.log(proposalCoverUrls);
-
     return this.proposalDestinationRepository.updateCoverUrls(
       createdDestination.id,
       proposalCoverUrls,
