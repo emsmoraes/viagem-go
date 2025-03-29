@@ -4,6 +4,7 @@ import { UpdateProposalDto } from './dto/update-proposal.dto';
 import { ProposalRepository } from './repositories/proposal.repository';
 import { AwsService } from '../aws/aws.service';
 import { EnvService } from '../env/env.service';
+import { extractFileName } from 'src/shared/helpers/extract-file-name';
 
 @Injectable()
 export class ProposalService {
@@ -69,10 +70,49 @@ export class ProposalService {
   }
 
   async remove(proposalId: string, userId: string) {
-    await this.awsService.delete(
-      `${proposalId}.webp`,
-      this.envService.get('S3_PROPOSAL_COVERS_FOLDER_PATH'),
+    const s3ProposalFolder = this.envService.get(
+      'S3_PROPOSAL_COVERS_FOLDER_PATH',
     );
+    const s3DestinationFolder = this.envService.get(
+      'S3_PROPOSAL_DESTINATION_COVERS_FOLDER_PATH',
+    );
+    const s3DayByDayFolder = this.envService.get(
+      'S3_PROPOSAL_DAY_BY_DAY_COVERS_FOLDER_PATH',
+    );
+
+    const proposal = await this.proposalRepository.findOne({
+      proposalId,
+      userId,
+    });
+
+    if (!proposal) {
+      throw new Error('Proposal not found');
+    }
+
+    await Promise.all(
+      proposal.destinations.flatMap((destination) =>
+        (destination.images ?? []).map((imageUrl) =>
+          this.awsService.delete(
+            extractFileName(imageUrl, s3DestinationFolder),
+            s3DestinationFolder,
+          ),
+        ),
+      ),
+    );
+
+    await Promise.all(
+      proposal.dayByDays.flatMap((destination) =>
+        (destination.images ?? []).map((imageUrl) =>
+          this.awsService.delete(
+            extractFileName(imageUrl, s3DayByDayFolder),
+            s3DayByDayFolder,
+          ),
+        ),
+      ),
+    );
+
+    await this.awsService.delete(`${proposalId}.webp`, s3ProposalFolder);
+
     return await this.proposalRepository.delete({ proposalId, userId });
   }
 }
