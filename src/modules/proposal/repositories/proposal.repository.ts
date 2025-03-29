@@ -75,9 +75,21 @@ export class ProposalRepository {
         AND: [{ id: proposalId }, { userId: userId }],
       },
       include: {
-        destinations: true,
-        dayByDays: true,
-        passengers: true,
+        destinations: {
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
+        dayByDays: {
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
+        passengers: {
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
       },
     });
   }
