@@ -103,6 +103,6 @@ export class ProposalDayByDayController {
   async remove(@Param('id') id: string, @Request() req) {
     const userId = req.user.userId;
 
-    this.proposalDayByDayService.remove(id, userId);
+    return this.proposalDayByDayService.remove(id, userId);
   }
 }
