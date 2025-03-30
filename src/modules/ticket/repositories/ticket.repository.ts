@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/database/prisma/prisma.service';
-import { CreateTicketDto } from '../dto/create-ticket.dto';
-import { UpdateTicketDto } from '../dto/update-ticket.dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -28,9 +26,9 @@ export class TicketRepository {
 
   async findOne(id: string, proposalId: string) {
     return this.prisma.ticket.findFirst({
-      where: { 
+      where: {
         id,
-        proposalId 
+        proposalId,
       },
       include: {
         proposal: true,
@@ -53,4 +51,4 @@ export class TicketRepository {
       where: { id },
     });
   }
-} 
+}

@@ -7,6 +7,7 @@ import {
   Min,
   IsOptional,
   IsArray,
+  IsDateString,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 
@@ -18,11 +19,18 @@ enum TicketType {
 
 export class CreateTicketDto {
   @ApiProperty({
-    example: 'Voo São Paulo - Paris',
-    description: 'Nome do ticket',
+    example: 'São Paulo',
+    description: 'Origem do ticket (exemplo: cidade de partida)',
   })
   @IsString()
-  name: string;
+  origin: string;
+
+  @ApiProperty({
+    example: 'Paris',
+    description: 'Destino do ticket (exemplo: cidade de chegada)',
+  })
+  @IsString()
+  destination: string;
 
   @ApiProperty({
     example: 'OUTBOUND',
@@ -47,19 +55,35 @@ export class CreateTicketDto {
   @IsOptional()
   @IsInt()
   @Min(0)
-  @Transform(({ value }) => value ? parseInt(value) : undefined)
+  @Transform(({ value }) => (value ? parseInt(value) : undefined))
   baggagePerPerson?: number;
 
   @ApiProperty({
-    example: 180,
-    description: 'Duração total em minutos',
+    example: '3h 30m',
+    description: 'Duração total em formato de string (exemplo: "3h 30m")',
     required: false,
   })
   @IsOptional()
-  @IsInt()
-  @Min(0)
-  @Transform(({ value }) => value ? parseInt(value) : undefined)
-  duration?: number;
+  @IsString()
+  duration?: string;
+
+  @ApiProperty({
+    example: '2024-12-01T10:00:00Z',
+    description: 'Data e hora de embarque (ISO 8601)',
+    required: false,
+  })
+  @IsOptional()
+  @IsDateString()
+  departureAt?: string;
+
+  @ApiProperty({
+    example: '2024-12-01T15:30:00Z',
+    description: 'Data e hora de chegada (ISO 8601)',
+    required: false,
+  })
+  @IsOptional()
+  @IsDateString()
+  arrivalAt?: string;
 
   @ApiProperty({
     example: 1500.5,
@@ -69,7 +93,7 @@ export class CreateTicketDto {
   @IsOptional()
   @IsNumber()
   @Min(0)
-  @Transform(({ value }) => value ? parseFloat(value) : undefined)
+  @Transform(({ value }) => (value ? parseFloat(value) : undefined))
   price?: number;
 
   @ApiProperty({
@@ -90,10 +114,19 @@ export class CreateTicketDto {
       'https://viagem-go.s3.sa-east-1.amazonaws.com/tickets/pdf/123-abc.pdf',
     ],
     required: false,
-    description: 'Lista de URLs dos PDFs que devem ser mantidos',
+    description: 'Lista de URLs dos PDFs que devem ser mantidas',
   })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
   pdfUrls?: string[];
+
+  @ApiProperty({
+    example: 'Observações sobre o voo...',
+    description: 'Observação adicional sobre o ticket',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  observation?: string;
 }

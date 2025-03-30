@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFiles, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  UseInterceptors,
+  UploadedFiles,
+  BadRequestException,
+} from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
@@ -21,30 +33,34 @@ export class TicketController {
   @Post()
   @ApiOperation({ summary: 'Criar novo ticket' })
   @UseInterceptors(
-    FileFieldsInterceptor([
-      { name: 'images', maxCount: 5 },
-      { name: 'pdfs', maxCount: 5 }
-    ], {
-      storage,
-      limits: {
-        fileSize: 10 * 1024 * 1024,
+    FileFieldsInterceptor(
+      [
+        { name: 'images', maxCount: 5 },
+        { name: 'files', maxCount: 5 },
+      ],
+      {
+        storage,
+        limits: {
+          fileSize: 10 * 1024 * 1024,
+        },
+        fileFilter: (req, file, callback) => {
+          if (file.fieldname === 'images') {
+            return fileFilter(req, file, callback);
+          }
+          if (file.fieldname === 'files') {
+            return pdfFilter(req, file as any, callback);
+          }
+          callback(null, false);
+        },
       },
-      fileFilter: (req, file, callback) => {
-        if (file.fieldname === 'images') {
-          return fileFilter(req, file, callback);
-        }
-        if (file.fieldname === 'pdfs') {
-          return pdfFilter(req, file as any, callback);
-        }
-        callback(null, false);
-      },
-    })
+    ),
   )
   async create(
     @Body() createTicketDto: CreateTicketDto,
-    @UploadedFiles() files: { 
-      images?: Express.Multer.File[], 
-      pdfs?: Express.Multer.File[] 
+    @UploadedFiles()
+    files: {
+      images?: Express.Multer.File[];
+      files?: Express.Multer.File[];
     },
   ) {
     let webpFiles: Express.Multer.File[] | undefined = undefined;
@@ -59,11 +75,11 @@ export class TicketController {
       );
     }
 
-    if (files.pdfs && files.pdfs.length > 0) {
-      if (files.pdfs.length > 5) {
-        throw new BadRequestException('Máximo de 5 PDFs por upload');
+    if (files.files && files.files.length > 0) {
+      if (files.files.length > 5) {
+        throw new BadRequestException('Máximo de 5 arquivos por upload');
       }
-      pdfFiles = files.pdfs;
+      pdfFiles = files.files;
     }
 
     return this.ticketService.create(createTicketDto, webpFiles, pdfFiles);
@@ -84,32 +100,36 @@ export class TicketController {
   @Patch(':id/proposal/:proposalId')
   @ApiOperation({ summary: 'Atualizar um ticket' })
   @UseInterceptors(
-    FileFieldsInterceptor([
-      { name: 'images', maxCount: 5 },
-      { name: 'pdfs', maxCount: 5 }
-    ], {
-      storage,
-      limits: {
-        fileSize: 10 * 1024 * 1024,
+    FileFieldsInterceptor(
+      [
+        { name: 'images', maxCount: 5 },
+        { name: 'files', maxCount: 5 },
+      ],
+      {
+        storage,
+        limits: {
+          fileSize: 10 * 1024 * 1024,
+        },
+        fileFilter: (req, file, callback) => {
+          if (file.fieldname === 'images') {
+            return fileFilter(req, file, callback);
+          }
+          if (file.fieldname === 'files') {
+            return pdfFilter(req, file as any, callback);
+          }
+          callback(null, false);
+        },
       },
-      fileFilter: (req, file, callback) => {
-        if (file.fieldname === 'images') {
-          return fileFilter(req, file, callback);
-        }
-        if (file.fieldname === 'pdfs') {
-          return pdfFilter(req, file as any, callback);
-        }
-        callback(null, false);
-      },
-    })
+    ),
   )
   async update(
     @Param('id') id: string,
     @Param('proposalId') proposalId: string,
     @Body() updateTicketDto: UpdateTicketDto,
-    @UploadedFiles() files: { 
-      images?: Express.Multer.File[], 
-      pdfs?: Express.Multer.File[] 
+    @UploadedFiles()
+    files: {
+      images?: Express.Multer.File[];
+      files?: Express.Multer.File[];
     },
   ) {
     let webpFiles: Express.Multer.File[] | undefined = undefined;
@@ -121,14 +141,20 @@ export class TicketController {
       );
     }
 
-    if (files.pdfs && files.pdfs.length > 0) {
-      if (files.pdfs.length > 5) {
-        throw new BadRequestException('Máximo de 5 PDFs por upload');
+    if (files.files && files.files.length > 0) {
+      if (files.files.length > 5) {
+        throw new BadRequestException('Máximo de 5 arquivos por upload');
       }
-      pdfFiles = files.pdfs;
+      pdfFiles = files.files;
     }
 
-    return this.ticketService.update(id, proposalId, updateTicketDto, webpFiles, pdfFiles);
+    return this.ticketService.update(
+      id,
+      proposalId,
+      updateTicketDto,
+      webpFiles,
+      pdfFiles,
+    );
   }
 
   @Delete(':id/proposal/:proposalId')
@@ -136,4 +162,4 @@ export class TicketController {
   remove(@Param('id') id: string, @Param('proposalId') proposalId: string) {
     return this.ticketService.remove(id, proposalId);
   }
-} 
+}

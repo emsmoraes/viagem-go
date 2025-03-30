@@ -35,7 +35,7 @@ export class TicketService {
     }
 
     let imageUrls: string[] = [];
-    let pdfUrls: string[] = [];
+    let fileUrls: string[] = [];
 
     if (imageFiles?.length) {
       imageUrls = await Promise.all(
@@ -51,7 +51,7 @@ export class TicketService {
     }
 
     if (pdfFiles?.length) {
-      pdfUrls = await Promise.all(
+      fileUrls = await Promise.all(
         pdfFiles.map(async (file) => {
           const fileName = `${crypto.randomUUID()}.pdf`;
           return this.awsService.post(
@@ -64,7 +64,8 @@ export class TicketService {
     }
 
     const ticketData: Prisma.TicketCreateInput = {
-      name: createTicketDto.name,
+      origin: createTicketDto.origin,
+      destination: createTicketDto.destination,
       type: createTicketDto.type as any,
       proposal: {
         connect: { id: createTicketDto.proposalId },
@@ -72,8 +73,11 @@ export class TicketService {
       baggagePerPerson: createTicketDto.baggagePerPerson,
       duration: createTicketDto.duration,
       price: createTicketDto.price,
+      arrivalAt: createTicketDto.arrivalAt,
+      departureAt: createTicketDto.departureAt,
       imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
-      pdfUrls: pdfUrls.length > 0 ? pdfUrls : undefined,
+      fileUrls: fileUrls.length > 0 ? fileUrls : undefined,
+      observation: createTicketDto.observation,
     };
 
     return await this.ticketRepository.create(ticketData);
@@ -180,20 +184,22 @@ export class TicketService {
 
     const updatedPdfs = await this.processFiles(
       id,
-      ticket.pdfUrls ?? [],
-      updateTicketDto.pdfUrls ?? [],
+      ticket.fileUrls ?? [],
+      updateTicketDto.fileUrls ?? [],
       pdfFiles,
       'pdf',
     );
 
     const ticketData: Prisma.TicketUpdateInput = {
-      name: updateTicketDto.name,
+      origin: updateTicketDto.origin,
+      destination: updateTicketDto.destination,
       type: updateTicketDto.type as any,
       baggagePerPerson: updateTicketDto.baggagePerPerson,
       duration: updateTicketDto.duration,
       price: updateTicketDto.price,
-      imageUrls: updatedImages,
-      pdfUrls: updatedPdfs,
+      imageUrls: updatedImages.length > 0 ? updatedImages : undefined,
+      fileUrls: updatedPdfs.length > 0 ? updatedPdfs : undefined,
+      observation: updateTicketDto.observation,
     };
 
     return await this.ticketRepository.update(id, ticketData);
@@ -213,9 +219,9 @@ export class TicketService {
       );
     }
 
-    if (ticket.pdfUrls?.length) {
+    if (ticket.fileUrls?.length) {
       await Promise.all(
-        ticket.pdfUrls.map((pdfUrl) => {
+        ticket.fileUrls.map((pdfUrl) => {
           const fileName = extractFileName(pdfUrl, pdfsFolder);
           return this.awsService.delete(fileName, pdfsFolder);
         }),

@@ -26,5 +26,5 @@ export class UpdateTicketDto extends PartialType(CreateTicketDto) {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  pdfUrls?: string[];
-} 
+  fileUrls?: string[];
+}

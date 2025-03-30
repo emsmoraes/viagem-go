@@ -90,6 +90,11 @@ export class ProposalRepository {
             createdAt: 'asc',
           },
         },
+        tickets: {
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
       },
     });
   }

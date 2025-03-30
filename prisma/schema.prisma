@@ -220,18 +220,22 @@ model Passenger {
 
 model Ticket {
   id               String     @id @default(uuid())
-  name             String
+  origin           String
+  destination      String
   type             TicketType
   baggagePerPerson Int?
-  duration         Int?
+  duration         String?
   price            Decimal?   @db.Decimal(10, 2)
   imageUrls        String[]
-  pdfUrls          String[]
+  fileUrls         String[]
+  departureAt      DateTime?
+  arrivalAt        DateTime?
   proposalId       String
   proposal         Proposal   @relation(fields: [proposalId], references: [id], onDelete: Cascade, name: "ProposalToTickets")
   segments         Segment[]  @relation("TicketToSegments")
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
+  observation      String?
 
   @@map("tickets")
 }
