@@ -5,6 +5,7 @@ import { ProposalRepository } from './repositories/proposal.repository';
 import { AwsService } from '../aws/aws.service';
 import { EnvService } from '../env/env.service';
 import { extractFileName } from 'src/shared/helpers/extract-file-name';
+import { deleteImagesAndFiles } from 'src/shared/helpers/deleteImages-and-files';
 
 @Injectable()
 export class ProposalService {
@@ -84,35 +85,19 @@ export class ProposalService {
       proposalId,
       userId,
     });
-
     if (!proposal) {
       throw new Error('Proposal not found');
     }
 
-    await Promise.all(
-      proposal.destinations.flatMap((destination) =>
-        (destination.images ?? []).map((imageUrl) =>
-          this.awsService.delete(
-            extractFileName(imageUrl, s3DestinationFolder),
-            s3DestinationFolder,
-          ),
-        ),
-      ),
-    );
-
-    await Promise.all(
-      proposal.dayByDays.flatMap((destination) =>
-        (destination.images ?? []).map((imageUrl) =>
-          this.awsService.delete(
-            extractFileName(imageUrl, s3DayByDayFolder),
-            s3DayByDayFolder,
-          ),
-        ),
-      ),
+    await deleteImagesAndFiles(
+      [
+        { key: s3DestinationFolder, data: proposal.destinations },
+        { key: s3DayByDayFolder, data: proposal.dayByDays },
+      ],
+      this.awsService,
     );
 
     await this.awsService.delete(`${proposalId}.webp`, s3ProposalFolder);
-
     return await this.proposalRepository.delete({ proposalId, userId });
   }
 }
