@@ -86,6 +86,12 @@ export class ProposalService {
     const s3TicketFilesFolder = this.envService.get(
       'S3_TICKET_PDFS_FOLDER_PATH',
     );
+    const s3AccommodationImagesFolder = this.envService.get(
+      'S3_ACCOMMODATION_IMAGES_FOLDER_PATH',
+    );
+    const s3AccommodationFilesFolder = this.envService.get(
+      'S3_ACCOMMODATION_PDFS_FOLDER_PATH',
+    );
 
     const proposal = await this.proposalRepository.findOne({
       proposalId,
@@ -105,6 +111,16 @@ export class ProposalService {
         { key: s3DayByDayFolder, data: proposal.dayByDays, type: 'images' },
         { key: s3TicketImagesFolder, data: proposal.tickets, type: 'images' },
         { key: s3TicketFilesFolder, data: proposal.tickets, type: 'files' },
+        {
+          key: s3AccommodationImagesFolder,
+          data: proposal.accommodations,
+          type: 'images',
+        },
+        {
+          key: s3AccommodationFilesFolder,
+          data: proposal.accommodations,
+          type: 'files',
+        },
       ],
       this.awsService,
     );

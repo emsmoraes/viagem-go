@@ -95,6 +95,11 @@ export class ProposalRepository {
             createdAt: 'asc',
           },
         },
+        accommodations: {
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
       },
     });
   }
