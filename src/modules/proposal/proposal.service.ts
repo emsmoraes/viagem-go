@@ -80,6 +80,12 @@ export class ProposalService {
     const s3DayByDayFolder = this.envService.get(
       'S3_PROPOSAL_DAY_BY_DAY_COVERS_FOLDER_PATH',
     );
+    const s3TicketImagesFolder = this.envService.get(
+      'S3_TICKET_IMAGES_FOLDER_PATH',
+    );
+    const s3TicketFilesFolder = this.envService.get(
+      'S3_TICKET_PDFS_FOLDER_PATH',
+    );
 
     const proposal = await this.proposalRepository.findOne({
       proposalId,
@@ -91,8 +97,14 @@ export class ProposalService {
 
     await deleteImagesAndFiles(
       [
-        { key: s3DestinationFolder, data: proposal.destinations },
-        { key: s3DayByDayFolder, data: proposal.dayByDays },
+        {
+          key: s3DestinationFolder,
+          data: proposal.destinations,
+          type: 'images',
+        },
+        { key: s3DayByDayFolder, data: proposal.dayByDays, type: 'images' },
+        { key: s3TicketImagesFolder, data: proposal.tickets, type: 'images' },
+        { key: s3TicketFilesFolder, data: proposal.tickets, type: 'files' },
       ],
       this.awsService,
     );

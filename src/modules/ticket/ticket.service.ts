@@ -200,6 +200,8 @@ export class TicketService {
       imageUrls: updatedImages.length > 0 ? updatedImages : undefined,
       fileUrls: updatedPdfs.length > 0 ? updatedPdfs : undefined,
       observation: updateTicketDto.observation,
+      arrivalAt: updateTicketDto.arrivalAt,
+      departureAt: updateTicketDto.departureAt,
     };
 
     return await this.ticketRepository.update(id, ticketData);
