@@ -70,8 +70,8 @@ export class TransportService {
       proposal: {
         connect: { id: createTransportDto.proposalId },
       },
-      imageUrls: imageUrls,
-      pdfUrls: pdfUrls,
+      images: imageUrls,
+      files: pdfUrls,
     };
 
     return await this.transportRepository.create(transportData);
@@ -170,7 +170,7 @@ export class TransportService {
 
     const updatedImages = await this.processFiles(
       id,
-      transport.imageUrls,
+      transport.images,
       updateTransportDto.imageUrls ?? [],
       imageFiles,
       'image',
@@ -178,8 +178,8 @@ export class TransportService {
 
     const updatedPdfs = await this.processFiles(
       id,
-      transport.pdfUrls,
-      updateTransportDto.pdfUrls ?? [],
+      transport.files,
+      updateTransportDto.fileUrls ?? [],
       pdfFiles,
       'pdf',
     );
@@ -188,8 +188,8 @@ export class TransportService {
       type: updateTransportDto.type,
       description: updateTransportDto.description,
       price: updateTransportDto.price,
-      imageUrls: updatedImages,
-      pdfUrls: updatedPdfs,
+      images: updatedImages,
+      files: updatedPdfs,
     };
 
     return await this.transportRepository.update(id, transportData);
@@ -201,14 +201,14 @@ export class TransportService {
     const pdfsFolder = this.envService.get('S3_TRANSPORT_PDFS_FOLDER_PATH');
 
     await Promise.all(
-      transport.imageUrls.map((imageUrl) => {
+      transport.images.map((imageUrl) => {
         const fileName = extractFileName(imageUrl, imagesFolder);
         return this.awsService.delete(fileName, imagesFolder);
       }),
     );
 
     await Promise.all(
-      transport.pdfUrls.map((pdfUrl) => {
+      transport.files.map((pdfUrl) => {
         const fileName = extractFileName(pdfUrl, pdfsFolder);
         return this.awsService.delete(fileName, pdfsFolder);
       }),

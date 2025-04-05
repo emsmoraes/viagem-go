@@ -105,6 +105,11 @@ export class ProposalRepository {
             createdAt: 'asc',
           },
         },
+        transports: {
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
       },
     });
   }
