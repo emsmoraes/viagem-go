@@ -127,5 +127,5 @@ export class CreateAccommodationDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  pdfUrls?: string[];
+  fileUrls?: string[];
 } 

@@ -35,7 +35,7 @@ export class AccommodationService {
     }
 
     let imageUrls: string[] = [];
-    let pdfUrls: string[] = [];
+    let fileUrls: string[] = [];
 
     if (imageFiles?.length) {
       imageUrls = await Promise.all(
@@ -51,7 +51,7 @@ export class AccommodationService {
     }
 
     if (pdfFiles?.length) {
-      pdfUrls = await Promise.all(
+      fileUrls = await Promise.all(
         pdfFiles.map(async (file) => {
           const fileName = `${crypto.randomUUID()}.pdf`;
           return this.awsService.post(
@@ -77,8 +77,8 @@ export class AccommodationService {
       proposal: {
         connect: { id: createAccommodationDto.proposalId },
       },
-      imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
-      pdfUrls: pdfUrls.length > 0 ? pdfUrls : undefined,
+      images: imageUrls.length > 0 ? imageUrls : undefined,
+      files: fileUrls.length > 0 ? fileUrls : undefined,
     };
 
     return await this.accommodationRepository.create(accommodationData);
@@ -180,7 +180,7 @@ export class AccommodationService {
 
     const updatedImages = await this.processFiles(
       id,
-      accommodation.imageUrls ?? [],
+      accommodation.images ?? [],
       updateAccommodationDto.imageUrls ?? [],
       imageFiles,
       'image',
@@ -188,8 +188,8 @@ export class AccommodationService {
 
     const updatedPdfs = await this.processFiles(
       id,
-      accommodation.pdfUrls ?? [],
-      updateAccommodationDto.pdfUrls ?? [],
+      accommodation.files ?? [],
+      updateAccommodationDto.fileUrls ?? [],
       pdfFiles,
       'pdf',
     );
@@ -205,8 +205,8 @@ export class AccommodationService {
       roomType: updateAccommodationDto.roomType,
       description: updateAccommodationDto.description,
       price: updateAccommodationDto.price,
-      imageUrls: updatedImages,
-      pdfUrls: updatedPdfs,
+      images: updatedImages,
+      files: updatedPdfs,
     };
 
     return await this.accommodationRepository.update(id, accommodationData);
@@ -214,21 +214,23 @@ export class AccommodationService {
 
   async remove(id: string, proposalId: string) {
     const accommodation = await this.findOne(id, proposalId);
-    const imagesFolder = this.envService.get('S3_ACCOMMODATION_IMAGES_FOLDER_PATH');
+    const imagesFolder = this.envService.get(
+      'S3_ACCOMMODATION_IMAGES_FOLDER_PATH',
+    );
     const pdfsFolder = this.envService.get('S3_ACCOMMODATION_PDFS_FOLDER_PATH');
 
-    if (accommodation.imageUrls?.length) {
+    if (accommodation.images?.length) {
       await Promise.all(
-        accommodation.imageUrls.map((imageUrl) => {
+        accommodation.images.map((imageUrl) => {
           const fileName = extractFileName(imageUrl, imagesFolder);
           return this.awsService.delete(fileName, imagesFolder);
         }),
       );
     }
 
-    if (accommodation.pdfUrls?.length) {
+    if (accommodation.files?.length) {
       await Promise.all(
-        accommodation.pdfUrls.map((pdfUrl) => {
+        accommodation.files.map((pdfUrl) => {
           const fileName = extractFileName(pdfUrl, pdfsFolder);
           return this.awsService.delete(fileName, pdfsFolder);
         }),
@@ -237,4 +239,4 @@ export class AccommodationService {
 
     return await this.accommodationRepository.remove(id);
   }
-} 
+}

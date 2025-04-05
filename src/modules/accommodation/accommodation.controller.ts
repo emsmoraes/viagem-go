@@ -36,7 +36,7 @@ export class AccommodationController {
     FileFieldsInterceptor(
       [
         { name: 'images', maxCount: 5 },
-        { name: 'pdfs', maxCount: 5 },
+        { name: 'files', maxCount: 5 },
       ],
       {
         storage,
@@ -47,7 +47,7 @@ export class AccommodationController {
           if (file.fieldname === 'images') {
             return fileFilter(req, file, callback);
           }
-          if (file.fieldname === 'pdfs') {
+          if (file.fieldname === 'files') {
             return pdfFilter(req, file as any, callback);
           }
           callback(null, false);
@@ -60,7 +60,7 @@ export class AccommodationController {
     @UploadedFiles()
     files: {
       images?: Express.Multer.File[];
-      pdfs?: Express.Multer.File[];
+      files?: Express.Multer.File[];
     },
   ) {
     let webpFiles: Express.Multer.File[] | undefined = undefined;
@@ -75,11 +75,11 @@ export class AccommodationController {
       );
     }
 
-    if (files.pdfs && files.pdfs.length > 0) {
-      if (files.pdfs.length > 5) {
+    if (files.files && files.files.length > 0) {
+      if (files.files.length > 5) {
         throw new BadRequestException('Máximo de 5 PDFs por upload');
       }
-      pdfFiles = files.pdfs;
+      pdfFiles = files.files;
     }
 
     return this.accommodationService.create(
@@ -110,7 +110,7 @@ export class AccommodationController {
     FileFieldsInterceptor(
       [
         { name: 'images', maxCount: 5 },
-        { name: 'pdfs', maxCount: 5 },
+        { name: 'files', maxCount: 5 },
       ],
       {
         storage,
@@ -121,7 +121,7 @@ export class AccommodationController {
           if (file.fieldname === 'images') {
             return fileFilter(req, file, callback);
           }
-          if (file.fieldname === 'pdfs') {
+          if (file.fieldname === 'files') {
             return pdfFilter(req, file as any, callback);
           }
           callback(null, false);
@@ -136,7 +136,7 @@ export class AccommodationController {
     @UploadedFiles()
     files: {
       images?: Express.Multer.File[];
-      pdfs?: Express.Multer.File[];
+      files?: Express.Multer.File[];
     },
   ) {
     let webpFiles: Express.Multer.File[] | undefined = undefined;
@@ -148,11 +148,11 @@ export class AccommodationController {
       );
     }
 
-    if (files.pdfs && files.pdfs.length > 0) {
-      if (files.pdfs.length > 5) {
+    if (files.files && files.files.length > 0) {
+      if (files.files.length > 5) {
         throw new BadRequestException('Máximo de 5 PDFs por upload');
       }
-      pdfFiles = files.pdfs;
+      pdfFiles = files.files;
     }
 
     return this.accommodationService.update(
