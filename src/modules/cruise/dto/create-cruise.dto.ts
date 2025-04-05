@@ -59,11 +59,11 @@ export class CreateCruiseDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  imageUrls?: string[];
+  images?: string[];
 
   @ApiProperty({ example: ['url1', 'url2'], description: 'URLs dos PDFs', required: false })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  pdfUrls?: string[];
+  files?: string[];
 }

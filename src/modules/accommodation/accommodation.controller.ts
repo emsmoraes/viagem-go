@@ -97,10 +97,7 @@ export class AccommodationController {
 
   @Get(':id/proposal/:proposalId')
   @ApiOperation({ summary: 'Buscar uma hospedagem específica' })
-  findOne(
-    @Param('id') id: string,
-    @Param('proposalId') proposalId: string,
-  ) {
+  findOne(@Param('id') id: string, @Param('proposalId') proposalId: string) {
     return this.accommodationService.findOne(id, proposalId);
   }
 
@@ -169,4 +166,4 @@ export class AccommodationController {
   remove(@Param('id') id: string, @Param('proposalId') proposalId: string) {
     return this.accommodationService.remove(id, proposalId);
   }
-} 
+}

@@ -92,6 +92,12 @@ export class ProposalService {
     const s3AccommodationFilesFolder = this.envService.get(
       'S3_ACCOMMODATION_PDFS_FOLDER_PATH',
     );
+    const s3CruiseImagesFolder = this.envService.get(
+      'S3_CRUISE_IMAGES_FOLDER_PATH',
+    );
+    const s3CruiseFilesFolder = this.envService.get(
+      'S3_CRUISE_PDFS_FOLDER_PATH',
+    );
 
     const proposal = await this.proposalRepository.findOne({
       proposalId,
@@ -119,6 +125,16 @@ export class ProposalService {
         {
           key: s3AccommodationFilesFolder,
           data: proposal.accommodations,
+          type: 'files',
+        },
+        {
+          key: s3CruiseImagesFolder,
+          data: proposal.cruises,
+          type: 'images',
+        },
+        {
+          key: s3CruiseFilesFolder,
+          data: proposal.cruises,
           type: 'files',
         },
       ],

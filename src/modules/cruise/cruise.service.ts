@@ -75,8 +75,8 @@ export class CruiseService {
       proposal: {
         connect: { id: createCruiseDto.proposalId },
       },
-      imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
-      pdfUrls: pdfUrls.length > 0 ? pdfUrls : undefined,
+      images: imageUrls.length > 0 ? imageUrls : undefined,
+      files: pdfUrls.length > 0 ? pdfUrls : undefined,
     };
 
     return await this.cruiseRepository.create(cruiseData);
@@ -107,16 +107,16 @@ export class CruiseService {
 
     const updatedImages = await this.processFiles(
       id,
-      cruise.imageUrls ?? [],
-      updateCruiseDto.imageUrls ?? [],
+      cruise.images ?? [],
+      updateCruiseDto.images ?? [],
       imageFiles,
       'image',
     );
 
     const updatedPdfs = await this.processFiles(
       id,
-      cruise.pdfUrls ?? [],
-      updateCruiseDto.pdfUrls ?? [],
+      cruise.files ?? [],
+      updateCruiseDto.files ?? [],
       pdfFiles,
       'pdf',
     );
@@ -129,8 +129,8 @@ export class CruiseService {
       route: updateCruiseDto.route,
       description: updateCruiseDto.description,
       paymentMethods: updateCruiseDto.paymentMethods,
-      imageUrls: updatedImages,
-      pdfUrls: updatedPdfs,
+      images: updatedImages,
+      files: updatedPdfs,
     };
 
     return await this.cruiseRepository.update(id, cruiseData);
@@ -141,18 +141,18 @@ export class CruiseService {
     const imagesFolder = this.envService.get('S3_CRUISE_IMAGES_FOLDER_PATH');
     const pdfsFolder = this.envService.get('S3_CRUISE_PDFS_FOLDER_PATH');
 
-    if (cruise.imageUrls?.length) {
+    if (cruise.images?.length) {
       await Promise.all(
-        cruise.imageUrls.map((imageUrl) => {
+        cruise.images.map((imageUrl) => {
           const fileName = extractFileName(imageUrl, imagesFolder);
           return this.awsService.delete(fileName, imagesFolder);
         }),
       );
     }
 
-    if (cruise.pdfUrls?.length) {
+    if (cruise.files?.length) {
       await Promise.all(
-        cruise.pdfUrls.map((pdfUrl) => {
+        cruise.files.map((pdfUrl) => {
           const fileName = extractFileName(pdfUrl, pdfsFolder);
           return this.awsService.delete(fileName, pdfsFolder);
         }),

@@ -100,6 +100,11 @@ export class ProposalRepository {
             createdAt: 'asc',
           },
         },
+        cruises: {
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
       },
     });
   }

@@ -289,8 +289,8 @@ model Cruise {
   route          String?
   description    String?
   paymentMethods String?
-  imageUrls      String[]
-  pdfUrls        String[]
+  images         String[]
+  files          String[]
   proposalId     String
   proposal       Proposal  @relation(fields: [proposalId], references: [id], onDelete: Cascade, name: "ProposalToCruises")
   createdAt      DateTime  @default(now())
