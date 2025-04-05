@@ -108,7 +108,7 @@ export class CruiseService {
     const updatedImages = await this.processFiles(
       id,
       cruise.images ?? [],
-      updateCruiseDto.images ?? [],
+      updateCruiseDto.imageUrls ?? [],
       imageFiles,
       'image',
     );
@@ -116,7 +116,7 @@ export class CruiseService {
     const updatedPdfs = await this.processFiles(
       id,
       cruise.files ?? [],
-      updateCruiseDto.files ?? [],
+      updateCruiseDto.fileUrls ?? [],
       pdfFiles,
       'pdf',
     );
