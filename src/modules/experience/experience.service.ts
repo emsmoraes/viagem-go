@@ -70,8 +70,8 @@ export class ExperienceService {
       proposal: {
         connect: { id: createExperienceDto.proposalId },
       },
-      imageUrls: imageUrls,
-      pdfUrls: pdfUrls,
+      images: imageUrls,
+      files: pdfUrls,
     };
 
     return await this.experienceRepository.create(experienceData);
@@ -170,7 +170,7 @@ export class ExperienceService {
 
     const updatedImages = await this.processFiles(
       id,
-      experience.imageUrls,
+      experience.images,
       updateExperienceDto.imageUrls ?? [],
       imageFiles,
       'image',
@@ -178,8 +178,8 @@ export class ExperienceService {
 
     const updatedPdfs = await this.processFiles(
       id,
-      experience.pdfUrls,
-      updateExperienceDto.pdfUrls ?? [],
+      experience.files,
+      updateExperienceDto.fileUrls ?? [],
       pdfFiles,
       'pdf',
     );
@@ -188,8 +188,8 @@ export class ExperienceService {
       type: updateExperienceDto.type,
       description: updateExperienceDto.description,
       price: updateExperienceDto.price,
-      imageUrls: updatedImages,
-      pdfUrls: updatedPdfs,
+      images: updatedImages,
+      files: updatedPdfs,
     };
 
     return await this.experienceRepository.update(id, experienceData);
@@ -197,18 +197,20 @@ export class ExperienceService {
 
   async remove(id: string, proposalId: string) {
     const experience = await this.findOne(id, proposalId);
-    const imagesFolder = this.envService.get('S3_EXPERIENCE_IMAGES_FOLDER_PATH');
+    const imagesFolder = this.envService.get(
+      'S3_EXPERIENCE_IMAGES_FOLDER_PATH',
+    );
     const pdfsFolder = this.envService.get('S3_EXPERIENCE_PDFS_FOLDER_PATH');
 
     await Promise.all(
-      experience.imageUrls.map((imageUrl) => {
+      experience.images.map((imageUrl) => {
         const fileName = extractFileName(imageUrl, imagesFolder);
         return this.awsService.delete(fileName, imagesFolder);
       }),
     );
 
     await Promise.all(
-      experience.pdfUrls.map((pdfUrl) => {
+      experience.files.map((pdfUrl) => {
         const fileName = extractFileName(pdfUrl, pdfsFolder);
         return this.awsService.delete(fileName, pdfsFolder);
       }),

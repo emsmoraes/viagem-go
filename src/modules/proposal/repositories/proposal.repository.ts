@@ -110,6 +110,11 @@ export class ProposalRepository {
             createdAt: 'asc',
           },
         },
+        experiences: {
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
       },
     });
   }
