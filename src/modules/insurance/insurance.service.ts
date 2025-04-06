@@ -70,8 +70,8 @@ export class InsuranceService {
       proposal: {
         connect: { id: createInsuranceDto.proposalId },
       },
-      imageUrls: imageUrls,
-      pdfUrls: pdfUrls,
+      images: imageUrls,
+      files: pdfUrls,
     };
 
     return await this.insuranceRepository.create(insuranceData);
@@ -170,7 +170,7 @@ export class InsuranceService {
 
     const updatedImages = await this.processFiles(
       id,
-      insurance.imageUrls,
+      insurance.images,
       updateInsuranceDto.imageUrls ?? [],
       imageFiles,
       'image',
@@ -178,8 +178,8 @@ export class InsuranceService {
 
     const updatedPdfs = await this.processFiles(
       id,
-      insurance.pdfUrls,
-      updateInsuranceDto.pdfUrls ?? [],
+      insurance.files,
+      updateInsuranceDto.fileUrls ?? [],
       pdfFiles,
       'pdf',
     );
@@ -188,8 +188,8 @@ export class InsuranceService {
       title: updateInsuranceDto.title,
       description: updateInsuranceDto.description,
       price: updateInsuranceDto.price,
-      imageUrls: updatedImages,
-      pdfUrls: updatedPdfs,
+      images: updatedImages,
+      files: updatedPdfs,
     };
 
     return await this.insuranceRepository.update(id, insuranceData);
@@ -201,14 +201,14 @@ export class InsuranceService {
     const pdfsFolder = this.envService.get('S3_INSURANCE_PDFS_FOLDER_PATH');
 
     await Promise.all(
-      insurance.imageUrls.map((imageUrl) => {
+      insurance.images.map((imageUrl) => {
         const fileName = extractFileName(imageUrl, imagesFolder);
         return this.awsService.delete(fileName, imagesFolder);
       }),
     );
 
     await Promise.all(
-      insurance.pdfUrls.map((pdfUrl) => {
+      insurance.files.map((pdfUrl) => {
         const fileName = extractFileName(pdfUrl, pdfsFolder);
         return this.awsService.delete(fileName, pdfsFolder);
       }),

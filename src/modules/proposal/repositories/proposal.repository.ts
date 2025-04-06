@@ -115,6 +115,11 @@ export class ProposalRepository {
             createdAt: 'asc',
           },
         },
+        insurances: {
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
       },
     });
   }

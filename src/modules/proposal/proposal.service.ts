@@ -110,11 +110,18 @@ export class ProposalService {
     const s3ExperiencesFilesFolder = this.envService.get(
       'S3_EXPERIENCE_PDFS_FOLDER_PATH',
     );
+    const s3InsurancesImagesFolder = this.envService.get(
+      'S3_INSURANCE_IMAGES_FOLDER_PATH',
+    );
+    const s3InsurancesFilesFolder = this.envService.get(
+      'S3_INSURANCE_PDFS_FOLDER_PATH',
+    );
 
     const proposal = await this.proposalRepository.findOne({
       proposalId,
       userId,
     });
+
     if (!proposal) {
       throw new Error('Proposal not found');
     }
@@ -167,6 +174,16 @@ export class ProposalService {
         {
           key: s3ExperiencesFilesFolder,
           data: proposal.experiences,
+          type: 'files',
+        },
+        {
+          key: s3InsurancesImagesFolder,
+          data: proposal.insurances,
+          type: 'images',
+        },
+        {
+          key: s3InsurancesFilesFolder,
+          data: proposal.insurances,
           type: 'files',
         },
       ],
