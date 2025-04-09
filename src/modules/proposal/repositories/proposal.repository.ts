@@ -120,6 +120,16 @@ export class ProposalRepository {
             createdAt: 'asc',
           },
         },
+        extras: {
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
+        summary: {
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
       },
     });
   }

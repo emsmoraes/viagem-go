@@ -349,8 +349,8 @@ model Extra {
   title       String
   description String?
   price       Decimal? @db.Decimal(10, 2)
-  imageUrls   String[]
-  pdfUrls     String[]
+  images      String[]
+  files       String[]
   proposalId  String
   proposal    Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade, name: "ProposalToExtras")
   createdAt   DateTime @default(now())

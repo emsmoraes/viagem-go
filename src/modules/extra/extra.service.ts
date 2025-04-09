@@ -70,8 +70,8 @@ export class ExtraService {
       proposal: {
         connect: { id: createExtraDto.proposalId },
       },
-      imageUrls: imageUrls,
-      pdfUrls: pdfUrls,
+      images: imageUrls,
+      files: pdfUrls,
     };
 
     return await this.extraRepository.create(extraData);
@@ -170,7 +170,7 @@ export class ExtraService {
 
     const updatedImages = await this.processFiles(
       id,
-      extra.imageUrls,
+      extra.images,
       updateExtraDto.imageUrls ?? [],
       imageFiles,
       'image',
@@ -178,8 +178,8 @@ export class ExtraService {
 
     const updatedPdfs = await this.processFiles(
       id,
-      extra.pdfUrls,
-      updateExtraDto.pdfUrls ?? [],
+      extra.files,
+      updateExtraDto.fileUrls ?? [],
       pdfFiles,
       'pdf',
     );
@@ -188,8 +188,8 @@ export class ExtraService {
       title: updateExtraDto.title,
       description: updateExtraDto.description,
       price: updateExtraDto.price,
-      imageUrls: updatedImages,
-      pdfUrls: updatedPdfs,
+      images: updatedImages,
+      files: updatedPdfs,
     };
 
     return await this.extraRepository.update(id, extraData);
@@ -201,14 +201,14 @@ export class ExtraService {
     const pdfsFolder = this.envService.get('S3_EXTRA_PDFS_FOLDER_PATH');
 
     await Promise.all(
-      extra.imageUrls.map((imageUrl) => {
+      extra.images.map((imageUrl) => {
         const fileName = extractFileName(imageUrl, imagesFolder);
         return this.awsService.delete(fileName, imagesFolder);
       }),
     );
 
     await Promise.all(
-      extra.pdfUrls.map((pdfUrl) => {
+      extra.files.map((pdfUrl) => {
         const fileName = extractFileName(pdfUrl, pdfsFolder);
         return this.awsService.delete(fileName, pdfsFolder);
       }),
