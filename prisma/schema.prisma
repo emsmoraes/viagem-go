@@ -364,7 +364,7 @@ model Summary {
   includedInProposal    String
   totalValue            Decimal? @db.Decimal(10, 2)
   conditionsAndValidity String?
-  proposalId            String   @unique
+  proposalId            String
   proposal              Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade, name: "ProposalToSummaries")
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt

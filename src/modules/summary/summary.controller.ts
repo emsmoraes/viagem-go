@@ -27,7 +27,7 @@ export class SummaryController {
   }
 
   @Get('proposal/:proposalId')
-  @ApiOperation({ summary: 'Listar todos os extras de uma proposta' })
+  @ApiOperation({ summary: 'Listar todos os resumos de uma proposta' })
   findAll(@Param('proposalId') proposalId: string) {
     return this.summaryService.findAll(proposalId);
   }

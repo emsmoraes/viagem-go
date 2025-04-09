@@ -9,9 +9,6 @@ export class SummaryRepository {
   async create(data: Prisma.SummaryCreateInput) {
     return this.prisma.summary.create({
       data,
-      include: {
-        proposal: true,
-      },
     });
   }
 
@@ -30,7 +27,11 @@ export class SummaryRepository {
     });
   }
 
-  async update(id: string, proposalId: string, data: Prisma.SummaryUpdateInput) {
+  async update(
+    id: string,
+    proposalId: string,
+    data: Prisma.SummaryUpdateInput,
+  ) {
     return this.prisma.summary.update({
       where: { id, proposalId },
       data,
