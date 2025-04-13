@@ -41,6 +41,9 @@ export class UserRegisterRepository {
       where: {
         email: userEmail,
       },
+      include: {
+        userRoles: true,
+      },
     });
 
     if (!user) {

@@ -8,9 +8,14 @@ export class CustomerRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createCustomerDto: CreateCustomerDto, userId: string) {
+    const { numberOfChildren, ...rest } = createCustomerDto;
+
     return this.prisma.customer.create({
       data: {
-        ...createCustomerDto,
+        ...rest,
+        numberOfChildren: numberOfChildren
+          ? Number(numberOfChildren)
+          : undefined,
         userId,
       },
     });
@@ -75,9 +80,15 @@ export class CustomerRepository {
     updateCustomerDto: UpdateCustomerDto,
     userId: string,
   ) {
+    const { numberOfChildren, ...rest } = updateCustomerDto;
+
     return this.prisma.customer.update({
       where: { id, userId },
-      data: updateCustomerDto,
+      data: {
+        ...rest,
+        numberOfChildren:
+          numberOfChildren !== undefined ? Number(numberOfChildren) : undefined,
+      },
     });
   }
 

@@ -46,7 +46,9 @@ export class CustomerService {
       userId,
     );
 
-    return;
+    return {
+      costumerId: createdCustomer.id,
+    };
   }
 
   async findAll(
