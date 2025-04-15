@@ -1,10 +1,7 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import { CreateCustomerDocumentDto } from './create-customer-document.dto';
 import { IsOptional, IsString, IsDateString, IsArray } from 'class-validator';
 
-export class UpdateCustomerDocumentDto extends PartialType(
-  CreateCustomerDocumentDto,
-) {
+export class UpdateCustomerDocumentDto {
   @ApiPropertyOptional({
     example: 'Passport',
     description: 'Name of the document',

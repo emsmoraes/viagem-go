@@ -1,7 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/database/prisma/prisma.service';
-import { CreateCustomerDocumentDto } from '../dto/create-customer-document.dto';
-import { UpdateCustomerDocumentDto } from '../dto/update-customer-document.dto';
+import { CreateCustomerDocumentsDto } from '../dto/create-customer-document.dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -9,15 +8,22 @@ export class CustomerDocumentRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(
-    createCustomerDocumentDto: CreateCustomerDocumentDto,
-    documentUrls: string[],
+    { customerId, documents }: CreateCustomerDocumentsDto,
+    documentUrlsGrouped: string[][],
   ) {
-    return this.prisma.customerDocument.create({
-      data: {
-        ...createCustomerDocumentDto,
-        fileUrls: documentUrls,
-      },
-    });
+    return Promise.all(
+      documents.map((doc, index) => {
+        const fileUrls = documentUrlsGrouped[index] ?? [];
+
+        return this.prisma.customerDocument.create({
+          data: {
+            ...doc,
+            customerId,
+            fileUrls,
+          },
+        });
+      }),
+    );
   }
 
   async findAll() {

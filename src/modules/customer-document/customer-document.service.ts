@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateCustomerDocumentDto } from './dto/create-customer-document.dto';
+import { CreateCustomerDocumentsDto } from './dto/create-customer-document.dto';
 import { UpdateCustomerDocumentDto } from './dto/update-customer-document.dto';
 import { AwsService } from '../aws/aws.service';
 import { EnvService } from '../env/env.service';
@@ -20,28 +20,43 @@ export class CustomerDocumentService {
   ) {}
 
   async create(
-    createCustomerDocumentDto: CreateCustomerDocumentDto,
-    documents: Express.Multer.File[],
+    createCustomerDocumentDto: CreateCustomerDocumentsDto,
+    files: Express.Multer.File[],
   ) {
-    if (!documents || documents.length === 0) {
-      throw new BadRequestException('At least one document file is required.');
+    const groupedFilesByDocument: Record<number, Express.Multer.File[]> = {};
+  
+    files.forEach((file) => {
+      const match = file.fieldname.match(/documents\[(\d+)]\[files]/);
+      if (match) {
+        const docIndex = Number(match[1]);
+        if (!groupedFilesByDocument[docIndex]) {
+          groupedFilesByDocument[docIndex] = [];
+        }
+        groupedFilesByDocument[docIndex].push(file);
+      }
+    });
+  
+    const documentUrlsGrouped: string[][] = [];
+  
+    for (const index in groupedFilesByDocument) {
+      const filesForDoc = groupedFilesByDocument[index];
+      const urls = await Promise.all(
+        filesForDoc.map(async (file) => {
+          const fileExtension = file.originalname.split('.').pop();
+          const fileName = `${createCustomerDocumentDto.customerId}-${crypto.randomUUID()}.${fileExtension}`;
+          return this.awsService.post(
+            fileName,
+            file.buffer,
+            this.envService.get('S3_CUSTOMER_DOCUMENTS_FOLDER_PATH'),
+          );
+        }),
+      );
+      documentUrlsGrouped[Number(index)] = urls;
     }
-
-    const documentUrls = await Promise.all(
-      documents.map(async (document) => {
-        const fileExtension = document.originalname.split('.').pop();
-        const fileName = `${createCustomerDocumentDto.customerId}-${crypto.randomUUID()}.${fileExtension}`;
-        return await this.awsService.post(
-          fileName,
-          document.buffer,
-          this.envService.get('S3_CUSTOMER_DOCUMENTS_FOLDER_PATH'),
-        );
-      }),
-    );
-
+  
     return this.customerDocumentRepository.create(
       createCustomerDocumentDto,
-      documentUrls,
+      documentUrlsGrouped,
     );
   }
 
@@ -110,7 +125,7 @@ export class CustomerDocumentService {
     );
   }
 
-  async remove(id: string) { 
+  async remove(id: string) {
     const existingDocument = await this.customerDocumentRepository.findOne(id);
 
     if (!existingDocument) {
@@ -131,5 +146,5 @@ export class CustomerDocumentService {
     );
 
     return this.customerDocumentRepository.remove(id);
-  } 
+  }
 }

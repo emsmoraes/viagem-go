@@ -12,10 +12,10 @@ import {
   UploadedFiles,
 } from '@nestjs/common';
 import { CustomerDocumentService } from './customer-document.service';
-import { CreateCustomerDocumentDto } from './dto/create-customer-document.dto';
+import { CreateCustomerDocumentsDto } from './dto/create-customer-document.dto';
 import { UpdateCustomerDocumentDto } from './dto/update-customer-document.dto';
 import { AuthGuard } from '../auth/auth.guard';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { AnyFilesInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 
 @UseGuards(AuthGuard)
 @Controller('customer-document')
@@ -26,17 +26,19 @@ export class CustomerDocumentController {
 
   @Post()
   @UseInterceptors(
-    FilesInterceptor('documents', 5, {
+    AnyFilesInterceptor({
       limits: { fileSize: 5 * 1024 * 1024 },
     }),
   )
   async create(
-    @Body() createCustomerDocumentDto: CreateCustomerDocumentDto,
-    @UploadedFiles() documents: Express.Multer.File[],
+    @Body() createCustomerDocumentDto: CreateCustomerDocumentsDto,
+    @UploadedFiles() files: Express.Multer.File[],
   ) {
+    console.log("DTODATA", createCustomerDocumentDto)
+    console.log("files", files)
     return this.customerDocumentService.create(
       createCustomerDocumentDto,
-      documents,
+      files,
     );
   }
 
@@ -61,7 +63,11 @@ export class CustomerDocumentController {
     @Body() updateCustomerDocumentDto: UpdateCustomerDocumentDto,
     @UploadedFiles() documents: Express.Multer.File[],
   ) {
-    return this.customerDocumentService.update(id, updateCustomerDocumentDto, documents);
+    return this.customerDocumentService.update(
+      id,
+      updateCustomerDocumentDto,
+      documents,
+    );
   }
 
   @Delete(':id')
