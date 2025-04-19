@@ -36,7 +36,7 @@ export class CustomerRepository {
 
     const searchCondition = search
       ? {
-          name: {
+          fullName: {
             contains: search,
             mode: 'insensitive' as 'insensitive',
           },
@@ -72,6 +72,9 @@ export class CustomerRepository {
   async findOne(id: string, userId: string) {
     return this.prisma.customer.findFirst({
       where: { id, userId },
+      include: {
+        documents: true
+      }
     });
   }
 
